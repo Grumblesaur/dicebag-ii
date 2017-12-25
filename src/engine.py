@@ -11,7 +11,7 @@ tokens = ( # token declarations
   'LPAR', 'RPAR', 'MOD',  'LBRK',
   'RBRK', 'ADD',  'SUB',  'SUM',
   'AVG',  'COM',  'SAMM', 'FDIV',
-  'LAST', 'REP',
+  'LAST', 'REP',  'EVEN', 'ODD',
   'NUMBER',       'MACRO', 
 )
 
@@ -33,6 +33,8 @@ t_HIGH = r'h'
 t_SUM  = r'\#'
 t_AVG  = r'@'
 t_SAMM = r'\?'
+t_EVEN = r':'
+t_ODD  = r'&'
 
 t_EXP  = r'\*\*'
 t_LOG  = r'~'
@@ -89,7 +91,7 @@ precedence = (
   ('right', 'ABS', 'NEG'),
   ('left',  'LOG'),
   ('right', 'EXP'),
-  ('nonassoc', 'SUM', 'AVG', 'SAMM'),
+  ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD'),
   ('right', 'LOW', 'HIGH'),
   ('left',  'DIE'),
   ('left', 'REP'),
@@ -155,6 +157,14 @@ def p_expr_avg(t):
 def p_expr_samm(t):
   'expr : SAMM expr'
   t[0] = [sum(t[2]), (sum(t[2]) / len(t[2])), max(t[2]), min(t[2])]
+
+def p_expr_even(t):
+  'expr : EVEN expr'
+  t[0] = [x for x in t[2] if not (x % 2)]
+
+def p_expr_odd(t):
+  'expr : ODD expr'
+  t[0] = [x for x in t[2] if x % 2]
 
 
 def p_expr_tail(t):
