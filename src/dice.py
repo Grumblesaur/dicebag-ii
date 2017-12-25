@@ -1,14 +1,5 @@
 from engine import roll, ParseError
 
-def calc_reps(msg):
-  try:
-    die, rep = ((msg, 1), msg.split('^'))['^' in msg]
-    rep = abs(int(rep)) or 1
-  except (ValueError, TypeError) as e:
-    raise ParseError(e)
-
-  return [roll(die) for i in range(rep)]
-
 def scan(msg):
   if '!roll' not in msg:
     return []
