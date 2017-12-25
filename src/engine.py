@@ -64,7 +64,7 @@ def t_MACRO(t):
   t.value = eval(t.value)
   return t
 
-t_ignore = ' \t\n'
+t_ignore = ' \t\n\r'
 
 
 def t_error(t):
@@ -86,12 +86,14 @@ precedence = (
   ('left',  'CAT'),
   ('left',  'ADD', 'SUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD'),
+  ('right', 'NEG'),
   ('left',  'LOG'),
   ('right', 'EXP'),
   ('nonassoc', 'SUM', 'AVG', 'SAMM'),
   ('right', 'LOW', 'HIGH'),
   ('left',  'DIE'),
-  ('right', 'REP'),
+  ('left', 'REP'),
+  ('nonassoc', 'LPAR', 'RPAR'),
 )
 
 
@@ -108,7 +110,7 @@ def p_expr_binop(t):
           | expr DIE  expr
   '''
   if   t[2] == '$':
-    t[0] = int(str(t[1]) + str(t[3]))
+    t[0] = int(''.join(map(lambda x: str(int(x)), (t[1], t[3]))))
   elif t[2] == '+':
     t[0] = t[1] + t[3]
   elif t[2] == '-':
@@ -127,10 +129,11 @@ def p_expr_binop(t):
     t[0] = t[1] ** t[3]
   elif t[2] == 'd':
     t[0] = [randint(1, t[3]) for x in range(t[1])]
+    t[0] = t[0][0] if len(t[0]) == 1 else t[0]
 
 def p_expr_meta_rep(t):
-  'expr : MACRO REP expr'
-  t[0] = [parser.parse(t[1]) for x in range(t[3])]
+  'expr : expr REP expr'
+  t[0] = [parser.parse(str(t[1])) for x in range(t[3])]
 
 def p_expr_sum(t):
   'expr : SUM expr'
@@ -144,6 +147,9 @@ def p_expr_samm(t):
   'expr : SAMM expr'
   t[0] = [sum(t[2]), (sum(t[2]) / len(t[2])), max(t[2]), min(t[2])]
 
+def p_expr_neg(t):
+  'expr : SUB expr %prec NEG'
+  t[0] = -t[2]
 
 def p_expr_tail(t):
   '''expr : expr LOW  expr
@@ -160,6 +166,7 @@ def p_expr_unit(t):
   '''expr : LPAR expr RPAR
           | NUMBER
           | var
+          | MACRO
   '''
   if len(t) == 4:
     t[0] = t[2]

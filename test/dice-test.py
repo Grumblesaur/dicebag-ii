@@ -14,7 +14,9 @@ class Person(object):
   def __init__(self, name):
     self.display_name = name
 
-cases = [
+x = '!roll #("#[1d2,1d3,1d4,1d5,1d6,1d7,1d8,1d9,1d10]"^9)'
+
+pass_cases = [
   Message('!roll 4d4', 'bin'),
   Message('!roll 4**3', 'bin'),
   Message('!roll 2~3', 'bin'),
@@ -38,14 +40,25 @@ cases = [
   Message('!roll [#4d6h3, #4d6h3, #4d6h3, #4d6h3, #4d6h3]', 'last'),
   Message('!roll 80 - #last', 'last'),
   Message('!roll [#4d6h3, #4d6h3, #4d6h3, #4d6h3, #4d6h3] !roll 80 - #last',
-    'last'),
+    'last'
+  ),
+  Message('!roll "#4d6h3"^5 !roll 80 - #last', 'repeater'),
   
-  Message('!roll "#4d6h3"^5 !roll 80 - #last', 'repeater')
+  Message('!roll @("#4d10 + #4d10"^10) $ 1', 'bananas'),
+  Message('!roll 4d16l1 $ 4d16l1', 'cash'),
+  Message('!roll 10 $ 1', 'cash'),
+  Message('!roll ?("#10d10 - 30" ^ (1d3))', 'concat'),
+  Message('!roll @(1$0)d4', 'cash'),
+  Message('!roll @(10d(2**1d4))', 'bananas'),
+  Message(x,'list'),
+  Message('!roll 1d1000000000', 'huge'),
 ]
 
 def test(msg):
   return notify(scan(msg.text), msg)
 
 if __name__ == '__main__':
-  for case in cases:
+  for case in pass_cases:
     print(test(case), '\n')
+
+
