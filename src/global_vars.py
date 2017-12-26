@@ -1,0 +1,2 @@
+dicebag_globals = {
+}

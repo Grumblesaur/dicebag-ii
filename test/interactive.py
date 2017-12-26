@@ -7,8 +7,12 @@ from engine import roll
 
 command = ''
 
-while "exit" not in command:
-  command = input('[dicebag ii] ')
-  print(roll(command.strip()))
-
+while True:
+  try:
+    command = input('[dicebag ii] ')
+    if "exit" in command.casefold():
+      break
+    print(roll(command.strip()))
+  except Exception as e:
+    print(e)
 

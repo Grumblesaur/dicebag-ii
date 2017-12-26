@@ -1,23 +1,25 @@
 from math import log
 from random import randint
+from global_vars import dicebag_globals
 import ply.yacc as yacc
 
 class ParseError(Exception):
   pass
 
 tokens = ( # token declarations
-  'DIE',  'LOW',  'HIGH', 'CAT',
-  'MUL',  'DIV',  'LOG',  'EXP',
-  'LPAR', 'RPAR', 'MOD',  'LBRK',
-  'RBRK', 'ADD',  'SUB',  'SUM',
-  'AVG',  'COM',  'SAMM', 'FDIV',
-  'LAST', 'REP',  'EVEN', 'ODD',
-  'NUMBER',       'MACRO', 
+  'DIE',  'LOW',    'HIGH',  'CAT',
+  'MUL',  'DIV',    'LOG',   'EXP',
+  'LPAR', 'RPAR',   'MOD',   'LBRK',
+  'RBRK', 'ADD',    'SUB',   'SUM',
+  'AVG',  'COM',    'SAMM',  'FDIV',
+  'LAST', 'REP',    'EVEN',  'ODD',
+  'ASS',  'NUMBER', 'MACRO', 'IDENT',
+  'DEL'
 )
 
 # token definitions
 
-t_LAST = r'last'
+t_LAST = r'_'
 
 t_REP  = r'\^'
 t_LPAR = r'\('
@@ -49,9 +51,15 @@ t_SUB  = r'-'
 
 t_CAT  = r'\$'
 
+t_ASS  = r'='
+t_DEL  = r';'
+
 t_COM  = r','
 
-
+def t_IDENT(t):
+  r'[a-zA-Z]+[\.a-zA-Z0-9]*'
+  return t
+  
 def t_NUMBER(t):
   r'\d+'
   try:
@@ -189,6 +197,10 @@ def p_expr_unit(t):
   else:
     t[0] = t[1]
 
+def p_ident(t):
+  'expr : IDENT'
+  t[0] = dicebag_globals[t[1]]
+
 def p_expr_last(t):
   'var : LAST'
   t[0] = last_roll
@@ -207,6 +219,16 @@ def p_elements(t):
   else:
     t[0] = [t[1]]
   
+
+def p_assign(t):
+  '''expr : IDENT ASS expr'''
+  t[0] = t[3]
+  dicebag_globals[t[1]] = t[3]
+
+def p_delete(t):
+  '''expr : DEL IDENT'''
+  t[0] = dicebag_globals[t[2]]
+  del dicebag_globals[t[2]]
 
 def p_error(t):
   print(report)
