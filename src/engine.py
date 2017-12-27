@@ -14,7 +14,9 @@ tokens = ( # token declarations
   'AVG',  'COM',    'SAMM',  'FDIV',
   'LAST', 'REP',    'EVEN',  'ODD',
   'ASS',  'NUMBER', 'MACRO', 'IDENT',
-  'DEL'
+  'DEL',  'ROOT',   'VADD',  'VSUB',
+  'VMUL', 'VDIV',   'VFDIV', 'VEXP',
+  'VLOG', 'VCAT',   'VMOD',  'VROOT'
 )
 
 # token definitions
@@ -39,17 +41,28 @@ t_EVEN = r':'
 t_ODD  = r'&'
 
 t_EXP  = r'\*\*'
+t_VEXP = r'<\*\*>'
 t_LOG  = r'~'
+t_VLOG = r'<~>'
 
 t_MUL  = r'\*'
+t_VMUL = r'<\*>'
 t_DIV  = r'/'
+t_VDIV = r'</>'
 t_FDIV = r'//'
+t_VFDIV= r'<//>'
 t_MOD  = r'%'
+t_VMOD = r'<%>'
+t_ROOT = r'%%'
+t_VROOT= r'<%%>'
 
 t_ADD  = r'\+'
+t_VADD = r'<\+>'
 t_SUB  = r'-'
+t_VSUB = r'<->'
 
 t_CAT  = r'\$'
+t_VCAT = r'<\$>'
 
 t_ASS  = r'='
 t_DEL  = r';'
@@ -57,7 +70,7 @@ t_DEL  = r';'
 t_COM  = r','
 
 def t_IDENT(t):
-  r'[a-zA-Z]+[\.a-zA-Z0-9]*'
+  r'[a-zA-Z]+[a-zA-Z0-9]*'
   return t
   
 def t_NUMBER(t):
@@ -69,8 +82,7 @@ def t_NUMBER(t):
   return t
 
 def t_MACRO(t):
-  r'\"(\\.|[^"\\])*\"'
-  r"'(\\.|[^'\\])*'"
+  r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
   t.value = eval(t.value)
   return t
 
@@ -93,18 +105,54 @@ report = None
 
 # parsing rules
 precedence = (
-  ('left',  'CAT'),
-  ('left',  'ADD', 'SUB'),
-  ('left',  'MUL', 'DIV', 'FDIV', 'MOD'),
+  ('left',  'CAT', 'VCAT'),
+  ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
+  ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
-  ('left',  'LOG'),
-  ('right', 'EXP'),
+  ('right', 'ROOT', 'VROOT'),
+  ('left',  'LOG', 'VLOG'),
+  ('right', 'EXP', 'VEXP'),
   ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD'),
   ('right', 'LOW', 'HIGH'),
   ('left',  'DIE'),
   ('left', 'REP'),
-  ('nonassoc', 'LPAR', 'RPAR'),
 )
+
+def p_expr_vbinop(t):
+  '''expr : expr VCAT expr
+          | expr VADD expr
+          | expr VSUB expr
+          | expr VMUL expr
+          | expr VDIV expr
+          | expr VMOD expr
+          | expr VFDIV expr
+          | expr VROOT expr
+          | expr VLOG expr
+          | expr VEXP expr
+  '''
+  if   t[2] == '<$>':
+    t[0] = map(
+      lambda x: int(x[0]+x[1]),
+      zip(str(int(t[1])), str(int(t[3])))
+    )
+  elif t[2] == '<+>':
+    t[0] = [sum(x) for x in zip(t[1], t[3])]
+  elif t[2] == '<->':
+    t[0] = [x[0] - x[1] for x in zip(t[1], t[3])]
+  elif t[2] == '<*>':
+    t[0] = [x[0] * x[1] for x in zip(t[1], t[3])]
+  elif t[2] == '</>':
+    t[0] = [x[0] / x[1] for x in zip(t[1], t[3])]
+  elif t[2] == '<%>':
+    t[0] = [x[0] % x[1] for x in zip(t[1], t[3])]
+  elif t[2] == '<//>':
+    t[0] = [x[0] // x[1], zip(t[1], t[3])]
+  elif t[2] == '<%%>':
+    t[0] = [x[1] ** (1.0 / x[0]) for x in zip(t[1], t[3])]
+  elif t[2] == '<~>':
+    t[0] = [log(x[1], x[0]) for x in zip(t[1], t[3])]
+  elif t[2] == '<**>':
+    t[0] = [x[0] ** x[1] for x in zip(t[1], t[3])]
 
 
 def p_expr_binop(t):
@@ -115,6 +163,7 @@ def p_expr_binop(t):
           | expr DIV  expr
           | expr MOD  expr
           | expr FDIV expr
+          | expr ROOT expr
           | expr LOG  expr
           | expr EXP  expr
           | expr DIE  expr
@@ -133,6 +182,8 @@ def p_expr_binop(t):
     t[0] = t[1] % t[3]
   elif t[2] == '//':
     t[0] = t[1] // t[3]
+  elif t[2] == '%%':
+    t[0] = t[3] ** (1.0 / t[1])
   elif t[2] == '~':
     t[0] = log(t[3], t[1])
   elif t[2] == '**':
