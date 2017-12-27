@@ -1,4 +1,4 @@
-from math import log
+from math import log, factorial
 from random import randint
 from global_vars import dicebag_globals
 import ply.yacc as yacc
@@ -6,8 +6,7 @@ import ply.yacc as yacc
 class ParseError(Exception):
   pass
 
-tokens = ( # token declarations
-  'DIE',    'LOW',    'HIGH',  'CAT',
+tokens = [ # token declarations
   'MUL',    'DIV',    'LOG',   'EXP',
   'LPAR',   'RPAR',   'MOD',   'LBRK',
   'RBRK',   'ADD',    'SUB',   'SUM',
@@ -16,16 +15,28 @@ tokens = ( # token declarations
   'NUMBER', 'MACRO',  'IDENT', 'DEL',
   'ROOT',   'VADD',   'VSUB',  'VMUL',
   'VDIV',   'VFDIV',  'VEXP',  'VLOG',
-  'VCAT',   'VMOD',   'VROOT',  'LBRC',
-  'RBRC',   'INS',    'DOT'
-)
+  'VCAT',   'VMOD',   'VROOT', 'LBRC',
+  'RBRC',   'INS',    'DOT',   'CAT',
+  'DIE',    'HIGH',   'LOW',   'FACT',
+  'VFACT',  'CHOOSE', 'VCHOOSE',
+]
 
 # token definitions
-reserved = {
-  'd' : 'DIE',
-  'l' : 'LOW',
-  'h' : 'HIGH'
-}
+def t_DIE(t):
+  r'd'
+  return t
+
+def t_LOW(t):
+  r'l'
+  return t
+
+def t_HIGH(t):
+  r'h'
+  return t
+
+def t_CHOOSE(t):
+  r'c'
+  return t
 
 def t_NUMBER(t):
   r'\d+'
@@ -61,6 +72,10 @@ t_VEXP = r'<\*\*>'
 t_LOG  = r'~'
 t_VLOG = r'<~>'
 
+t_VCHOOSE= r'<c>'
+t_FACT = r'!'
+t_VFACT= r'<!>'
+
 t_MUL  = r'\*'
 t_VMUL = r'<\*>'
 t_DIV  = r'/'
@@ -86,8 +101,8 @@ t_DEL  = r';'
 
 t_COM  = r','
 
-t_IDENT = r'[a-zA-Z_]+[a-zA-Z0-9_]*'
-  
+t_IDENT= r'[a-zA-Z_][a-zA-Z0-9_]*'
+
 
 t_ignore = ' \t\n\r'
 
@@ -114,6 +129,8 @@ precedence = (
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
   ('right', 'ROOT', 'VROOT'),
+  ('right', 'FACT', 'VFACT'),
+  ('left',  'CHOOSE', 'VCHOOSE'),
   ('left',  'LOG', 'VLOG'),
   ('right', 'EXP', 'VEXP'),
   ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD'),
@@ -132,6 +149,25 @@ def p_dot(t):
 def p_dot_assign(t):
   '''expr : IDENT DOT IDENT ASS expr'''
   t[0] = dicebag_globals[t[1]][t[3]] = t[5]
+
+def p_expr_fact(t):
+  '''expr : expr FACT'''
+  t[0] = factorial(t[1])
+
+def p_expr_vfact(t):
+  '''expr : expr VFACT'''
+  t[0] = [factorial(x) for x in t[1]]
+
+def choose(n, k):
+  return factorial(n) / (factorial(k) * factorial(n - k))
+
+def p_expr_choose(t):
+  '''expr : expr CHOOSE expr'''
+  t[0] = choose(t[1], t[3])
+
+def p_expr_vchoose(t):
+  '''expr : expr VCHOOSE expr'''
+  t[0] = [choose(n, k) for n, k in zip(t[1], t[3])]
 
 def p_expr_vbinop(t):
   '''expr : expr VCAT expr
