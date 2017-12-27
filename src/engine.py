@@ -20,10 +20,32 @@ tokens = [ # token declarations
   'RBRC',   'INS',    'DOT',   'CAT',
   'DIE',    'HIGH',   'LOW',   'FACT',
   'VFACT',  'CHOOSE', 'VCHOOSE',
-  'YIELD',  
+  'YIELD',  'GT',     'LT',    'EQ',
+  'GEQ',    'LEQ',    'NEQ',   'IF',
+  'ELSE',   'AND',    'OR',    'NOT'
 ]
 
 # token definitions
+def t_AND(t):
+  r'and'
+  return t
+
+def t_OR(t):
+  r'or'
+  return t
+
+def t_NOT(t):
+  r'NOT'
+  return t
+
+def t_IF(t):
+  r'if'
+  return t
+
+def t_ELSE(t):
+  r'else'
+  return t
+
 def t_DIE(t):
   r'd'
   return t
@@ -94,6 +116,13 @@ t_VADD = r'<\+>'
 t_SUB  = r'-'
 t_VSUB = r'<->'
 
+t_EQ   = r'=='
+t_NEQ  = r'!='
+t_GEQ  = r'>='
+t_LEQ  = r'<='
+t_GT   = r'>'
+t_LT   = r'<'
+
 t_CAT  = r'\$'
 t_VCAT = r'<\$>'
 
@@ -125,9 +154,14 @@ report = None
 
 # parsing rules
 precedence = (
+  ('right',  'IF'),
   ('right',  'ASS'),
   ('nonassoc', 'INS'),
   ('left',  'CAT', 'VCAT'),
+  ('left',  'OR'),
+  ('left',  'AND'),
+  ('right', 'NOT'),
+  ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
@@ -245,6 +279,40 @@ def p_expr_binop(t):
   elif t[2] == 'd':
     t[0] = [randint(1, t[3]) for x in range(t[1])]
     t[0] = t[0][0] if len(t[0]) == 1 else t[0]
+
+
+def p_expr_comp(t):
+  ''' expr : expr GT expr
+           | expr LT expr
+           | expr EQ expr
+           | expr NEQ expr
+           | expr GEQ expr
+           | expr LEQ expr
+  '''
+  if   t[2] == '>':
+    t[0] = t[1] > t[3]
+  elif t[2] == '<':
+    t[0] = t[1] < t[3]
+  elif t[2] == '==':
+    t[0] = t[1] == t[3]
+  elif t[2] == '!=':
+    t[0] = t[1] != t[3]
+  elif t[2] == '>=':
+    t[0] = t[1] >= t[3]
+  elif t[2] == '<=':
+    t[0] = t[1] <= t[3]
+
+def p_expr_or(t):
+  'expr : expr OR expr'
+  t[0] = t[1] or t[3]
+
+def p_expr_and(t):
+  'expr : expr AND expr'
+  t[0] = t[1] and t[3]
+
+def p_expr_not(t):
+  'expr : NOT expr'
+  t[0] = not t[2]
 
 def p_expr_sign(t):
   '''expr : ADD expr %prec ABS
@@ -387,6 +455,14 @@ def p_assign_expr(t):
     t[0] = {}
     dice_vars[t[1]] = {}
 
+def p_conditional(t):
+  '''expr : expr IF expr ELSE expr
+          | expr IF ELSE expr
+  '''
+  if len(t) == 6:
+    t[0] = t[1] if t[3] else t[5]
+  else:
+    t[0] = t[1] if t[1] else t[4]
 
 def p_insert_expr(t):
   '''expr : IDENT INS expr COM expr'''
