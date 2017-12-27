@@ -12,7 +12,7 @@ tokens = ( # token declarations
   'LPAR', 'RPAR',   'MOD',   'LBRK',
   'RBRK', 'ADD',    'SUB',   'SUM',
   'AVG',  'COM',    'SAMM',  'FDIV',
-  'LAST', 'REP',    'EVEN',  'ODD',
+  'REP',  'EVEN',  'ODD',
   'ASS',  'NUMBER', 'MACRO', 'IDENT',
   'DEL',  'ROOT',   'VADD',  'VSUB',
   'VMUL', 'VDIV',   'VFDIV', 'VEXP',
@@ -21,18 +21,23 @@ tokens = ( # token declarations
 
 # token definitions
 
-t_LAST = r'_'
-
 t_REP  = r'\^'
 t_LPAR = r'\('
 t_RPAR = r'\)'
 t_LBRK = r'\['
 t_RBRK = r'\]'
 
-t_DIE  = r'd'
+def t_DIE(t):
+  r'd'
+  return t
 
-t_LOW  = r'l'
-t_HIGH = r'h'
+def t_LOW(t):
+  r'l'
+  return t
+
+def t_HIGH(t):
+  r'h'
+  return t
 
 t_SUM  = r'\#'
 t_AVG  = r'@'
@@ -69,9 +74,7 @@ t_DEL  = r';'
 
 t_COM  = r','
 
-def t_IDENT(t):
-  r'[a-zA-Z]+[a-zA-Z0-9]*'
-  return t
+t_IDENT = r'[a-zA-Z_]+[a-zA-Z0-9_]*'
   
 def t_NUMBER(t):
   r'\d+'
@@ -99,7 +102,6 @@ lexer = lex.lex()
 
 
 # the value of the last roll is saved here, to be identified by `_`
-last_roll = 0
 report = None
 
 
@@ -240,7 +242,6 @@ def p_expr_tail(t):
 def p_expr_unit(t):
   '''expr : LPAR expr RPAR
           | NUMBER
-          | var
           | MACRO
   '''
   if len(t) == 4:
@@ -248,18 +249,16 @@ def p_expr_unit(t):
   else:
     t[0] = t[1]
 
+
 def p_ident(t):
   'expr : IDENT'
   t[0] = dicebag_globals[t[1]]
-
-def p_expr_last(t):
-  'var : LAST'
-  t[0] = last_roll
 
 
 def p_expr_list(t):
   'expr : LBRK elements RBRK'
   t[0] = t[2]
+
 
 def p_elements(t):
   '''elements : elements COM expr
@@ -289,9 +288,8 @@ parser = yacc.yacc(optimize=1, debug=True)
 
 def roll(expr):
   try:
-    global last_roll
-    last_roll = parser.parse(expr)
-    return last_roll
+    dicebag_globals['_'] = parser.parse(expr)
+    return dicebag_globals['_']
   except Exception as e:
     raise ParseError(e)
 
