@@ -1,6 +1,6 @@
 from math import log, factorial
 from random import randint
-from global_vars import dicebag_globals
+from global_vars import dice_vars
 import ply.yacc as yacc
 
 class ParseError(Exception):
@@ -144,11 +144,11 @@ precedence = (
 # The dot methods are syntactic sugar
 def p_dot(t):
   '''expr : IDENT DOT IDENT'''
-  t[0] = dicebag_globals[t[1]][t[3]]
+  t[0] = dice_vars[t[1]][t[3]]
 
 def p_dot_assign(t):
   '''expr : IDENT DOT IDENT ASS expr'''
-  t[0] = dicebag_globals[t[1]][t[3]] = t[5]
+  t[0] = dice_vars[t[1]][t[3]] = t[5]
 
 def p_expr_fact(t):
   '''expr : expr FACT'''
@@ -301,7 +301,7 @@ def p_expr_unit(t):
 
 def p_ident(t):
   'expr : IDENT'
-  t[0] = dicebag_globals[t[1]]
+  t[0] = dice_vars[t[1]]
 
 
 def p_expr_list(t):
@@ -329,21 +329,21 @@ def p_assign_expr(t):
   '''
   if len(t) == 4:
     t[0] = t[3]
-    dicebag_globals[t[1]] = t[3]
+    dice_vars[t[1]] = t[3]
   else:
     t[0] = {}
-    dicebag_globals[t[1]] = {}
+    dice_vars[t[1]] = {}
 
 
 def p_insert_expr(t):
   '''expr : IDENT INS expr COM expr'''
   t[0] = t[5]
-  dicebag_globals[t[1]][t[3]] = t[5]
+  dice_vars[t[1]][t[3]] = t[5]
 
 def p_delete(t):
   '''expr : DEL IDENT'''
-  t[0] = dicebag_globals[t[2]]
-  del dicebag_globals[t[2]]
+  t[0] = dice_vars[t[2]]
+  del dice_vars[t[2]]
 
 def p_error(t):
   print(report)
@@ -353,8 +353,8 @@ parser = yacc.yacc(optimize=1, debug=True)
 
 def roll(expr):
   try:
-    dicebag_globals['_'] = parser.parse(expr)
-    return dicebag_globals['_']
+    dice_vars['_'] = parser.parse(expr)
+    return dice_vars['_']
   except Exception as e:
     raise ParseError(e)
 
