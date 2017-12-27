@@ -107,7 +107,7 @@ report = None
 
 # parsing rules
 precedence = (
-  ('left',  'ASS'),
+  ('right',  'ASS'),
   ('nonassoc', 'INS'),
   ('left',  'CAT', 'VCAT'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
