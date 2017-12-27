@@ -2,6 +2,7 @@ from math import log, factorial
 from random import randint
 from global_vars import dice_vars
 import ply.yacc as yacc
+import sys
 
 class ParseError(Exception):
   pass
@@ -19,6 +20,7 @@ tokens = [ # token declarations
   'RBRC',   'INS',    'DOT',   'CAT',
   'DIE',    'HIGH',   'LOW',   'FACT',
   'VFACT',  'CHOOSE', 'VCHOOSE',
+  'YIELD',  
 ]
 
 # token definitions
@@ -96,6 +98,7 @@ t_CAT  = r'\$'
 t_VCAT = r'<\$>'
 
 t_INS  = r'<-'
+t_YIELD= r'->'
 t_ASS  = r'='
 t_DEL  = r';'
 
@@ -303,10 +306,60 @@ def p_ident(t):
   'expr : IDENT'
   t[0] = dice_vars[t[1]]
 
+def p_func_call(t):
+  '''expr : func_expr expr'''
+  args, algo = t[1].split('->')
+  args = [s.strip() for s in args.split(',')]
+  algo = algo.strip().strip('"').strip("'")
+  for index in range(len(t[2])):
+    algo = algo.replace(args[index], str(t[2][index]))
+  t[0] = parser.parse(algo)
+
+def p_named_func_call(t):
+  '''expr : IDENT expr'''
+  args, algo = dice_vars[t[1]].split('->')
+  args = [s.strip() for s in args.split(',')]
+  algo = algo.strip().strip('"').strip("'")
+  for index in range(len(t[2])):
+    algo = algo.replace(args[index], str(t[2][index]))
+  t[0] = parser.parse(algo)
+
+def p_func_expr(t):
+  '''func_expr : param_list YIELD MACRO'''
+  f = "%s -> '%s'" % (','.join(t[1]), t[3])
+  t[0] = f
+
+def p_func_assign(t):
+  '''expr : IDENT ASS func_expr'''
+  t[0] = t[3]
+  dice_vars[t[1]] = t[3]
+
+def p_param_list(t):
+  '''param_list : LBRK elements RBRK
+                | LBRK RBRK
+  '''
+  if len(t) == 4:
+    t[0] = t[2]
+  else:
+    t[0] = []
+
+def p_params(t):
+  '''params : params COM MACRO
+            | MACRO
+  '''
+  if len(t) == 4:
+    t[0] = t[1] + [t[3]]
+  else:
+    t[0] = [t[1]]
 
 def p_expr_list(t):
-  'expr : LBRK elements RBRK'
-  t[0] = t[2]
+  '''expr : LBRK elements RBRK
+          | LBRK RBRK
+  '''
+  if len(t) == 4:
+    t[0] = t[2]
+  else:
+    t[0] = []
 
 
 def p_elements(t):

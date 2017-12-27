@@ -2,6 +2,10 @@ dice_vars = {
   '_' : 0,
 }
 
+dice_funcs = {
+
+}
+
 turn_tracker = {
   
 }
