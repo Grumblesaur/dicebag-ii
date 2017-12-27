@@ -7,37 +7,48 @@ class ParseError(Exception):
   pass
 
 tokens = ( # token declarations
-  'DIE',  'LOW',    'HIGH',  'CAT',
-  'MUL',  'DIV',    'LOG',   'EXP',
-  'LPAR', 'RPAR',   'MOD',   'LBRK',
-  'RBRK', 'ADD',    'SUB',   'SUM',
-  'AVG',  'COM',    'SAMM',  'FDIV',
-  'REP',  'EVEN',  'ODD',
-  'ASS',  'NUMBER', 'MACRO', 'IDENT',
-  'DEL',  'ROOT',   'VADD',  'VSUB',
-  'VMUL', 'VDIV',   'VFDIV', 'VEXP',
-  'VLOG', 'VCAT',   'VMOD',  'VROOT'
+  'DIE',    'LOW',    'HIGH',  'CAT',
+  'MUL',    'DIV',    'LOG',   'EXP',
+  'LPAR',   'RPAR',   'MOD',   'LBRK',
+  'RBRK',   'ADD',    'SUB',   'SUM',
+  'AVG',    'COM',    'SAMM',  'FDIV',
+  'REP',    'EVEN',   'ODD',   'ASS',
+  'NUMBER', 'MACRO',  'IDENT', 'DEL',
+  'ROOT',   'VADD',   'VSUB',  'VMUL',
+  'VDIV',   'VFDIV',  'VEXP',  'VLOG',
+  'VCAT',   'VMOD',   'VROOT',  'LBRC',
+  'RBRC',   'INS',    'DOT'
 )
 
 # token definitions
+reserved = {
+  'd' : 'DIE',
+  'l' : 'LOW',
+  'h' : 'HIGH'
+}
+
+def t_NUMBER(t):
+  r'\d+'
+  try:
+    t.value = int(t.value)
+  except ValueError:
+    raise ParseError('"%s" is not an integer' % t.value)
+  return t
+
+def t_MACRO(t):
+  r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
+  t.value = eval(t.value)
+  return t
 
 t_REP  = r'\^'
 t_LPAR = r'\('
 t_RPAR = r'\)'
 t_LBRK = r'\['
 t_RBRK = r'\]'
+t_LBRC = r'{'
+t_RBRC = r'}'
+t_DOT  = r'\.'
 
-def t_DIE(t):
-  r'd'
-  return t
-
-def t_LOW(t):
-  r'l'
-  return t
-
-def t_HIGH(t):
-  r'h'
-  return t
 
 t_SUM  = r'\#'
 t_AVG  = r'@'
@@ -69,6 +80,7 @@ t_VSUB = r'<->'
 t_CAT  = r'\$'
 t_VCAT = r'<\$>'
 
+t_INS  = r'<-'
 t_ASS  = r'='
 t_DEL  = r';'
 
@@ -76,18 +88,6 @@ t_COM  = r','
 
 t_IDENT = r'[a-zA-Z_]+[a-zA-Z0-9_]*'
   
-def t_NUMBER(t):
-  r'\d+'
-  try:
-    t.value = int(t.value)
-  except ValueError:
-    raise ParseError('"%s" is not an integer' % t.value)
-  return t
-
-def t_MACRO(t):
-  r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
-  t.value = eval(t.value)
-  return t
 
 t_ignore = ' \t\n\r'
 
@@ -107,6 +107,8 @@ report = None
 
 # parsing rules
 precedence = (
+  ('left',  'ASS'),
+  ('nonassoc', 'INS'),
   ('left',  'CAT', 'VCAT'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
@@ -116,9 +118,20 @@ precedence = (
   ('right', 'EXP', 'VEXP'),
   ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD'),
   ('right', 'LOW', 'HIGH'),
+  ('left', 'LBRC', 'RBRC', 'DOT'),
   ('left',  'DIE'),
   ('left', 'REP'),
 )
+
+
+# The dot methods are syntactic sugar
+def p_dot(t):
+  '''expr : IDENT DOT IDENT'''
+  t[0] = dicebag_globals[t[1]][t[3]]
+
+def p_dot_assign(t):
+  '''expr : IDENT DOT IDENT ASS expr'''
+  t[0] = dicebag_globals[t[1]][t[3]] = t[5]
 
 def p_expr_vbinop(t):
   '''expr : expr VCAT expr
@@ -270,10 +283,26 @@ def p_elements(t):
     t[0] = [t[1]]
   
 
-def p_assign(t):
-  '''expr : IDENT ASS expr'''
-  t[0] = t[3]
-  dicebag_globals[t[1]] = t[3]
+def p_index_expr(t):
+  r'expr : expr LBRC expr RBRC'
+  t[0] = t[1][t[3]]
+
+def p_assign_expr(t):
+  '''expr : IDENT ASS expr
+          | IDENT ASS LBRC RBRC
+  '''
+  if len(t) == 4:
+    t[0] = t[3]
+    dicebag_globals[t[1]] = t[3]
+  else:
+    t[0] = {}
+    dicebag_globals[t[1]] = {}
+
+
+def p_insert_expr(t):
+  '''expr : IDENT INS expr COM expr'''
+  t[0] = t[5]
+  dicebag_globals[t[1]][t[3]] = t[5]
 
 def p_delete(t):
   '''expr : DEL IDENT'''
