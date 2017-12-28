@@ -26,6 +26,10 @@ tokens = [ # token declarations
 ]
 
 # token definitions
+def t_IDENT(t):
+  r'[a-zA-Z_][a-zA-Z0-9_]*'
+  return t
+
 def t_AND(t):
   r'and'
   return t
@@ -74,6 +78,8 @@ def t_MACRO(t):
   r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
   t.value = eval(t.value)
   return t
+
+
 
 t_REP  = r'\^'
 t_LPAR = r'\('
@@ -133,7 +139,6 @@ t_DEL  = r';'
 
 t_COM  = r','
 
-t_IDENT= r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 
 t_ignore = ' \t\n\r'
@@ -410,15 +415,6 @@ def p_param_list(t):
     t[0] = t[2]
   else:
     t[0] = []
-
-def p_params(t):
-  '''params : params COM MACRO
-            | MACRO
-  '''
-  if len(t) == 4:
-    t[0] = t[1] + [t[3]]
-  else:
-    t[0] = [t[1]]
 
 def p_expr_list(t):
   '''expr : LBRK elements RBRK
