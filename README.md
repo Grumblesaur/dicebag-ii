@@ -15,6 +15,10 @@ operator precedence, from tightest-binding to loosest-binding.
 
 ### Operators
 ```
+  () : Parentheses will raise their enclosed expression to the highest level
+       of precedence.
+  
+  
   ^  : The repetition operator. Usage: a ^ b, where `a` is a macro, or a
        string, whose contents are a legal expression in dicelang, and `b`
        is any expression which resolves to an integer. The instructions in
