@@ -25,47 +25,21 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT'
 ]
 
-# Priority token definitions (alphanumeric operators and keywords)
-def t_DEL(t):
-  r'del'
-  return t
+reserved = {
+  'd'    : 'DIE',    'h'   : 'HIGH', 'l'   : 'LOW',
+  'c'    : 'CHOOSE', 'or'  : 'OR',   'and' : 'AND',
+  'not'  : 'NOT',    'del' : 'DEL',  'if'  : 'IF',
+  'else' : 'ELSE',
+}
 
-def t_AND(t):
-  r'and'
-  return t
+# Identifiers
 
-def t_OR(t):
-  r'or'
+def t_IDENT(t):
+  r'[a-zA-Z_]+'
+  # Intercept reserved words before they get treated like identifiers
+  if t.value in reserved:
+    t.type = reserved[t.value]
   return t
-
-def t_NOT(t):
-  r'NOT'
-  return t
-
-def t_IF(t):
-  r'if'
-  return t
-
-def t_ELSE(t):
-  r'else'
-  return t
-
-def t_DIE(t):
-  r'd'
-  return t
-
-def t_LOW(t):
-  r'l'
-  return t
-
-def t_HIGH(t):
-  r'h'
-  return t
-
-def t_CHOOSE(t):
-  r'c'
-  return t
-
 
 # Data tokens
 
@@ -81,14 +55,6 @@ def t_MACRO(t):
   r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
   t.value = eval(t.value)
   return t
-
-
-# Identifiers
-
-def t_IDENT(t):
-  r'[a-zA-Z_][a-zA-Z0-9_]*'
-  return t
-
 
 
 # Grouping symbols and miscellanea
