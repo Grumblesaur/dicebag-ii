@@ -25,9 +25,9 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT'
 ]
 
-# token definitions
-def t_IDENT(t):
-  r'[a-zA-Z_][a-zA-Z0-9_]*'
+# Priority token definitions (alphanumeric operators and keywords)
+def t_DEL(t):
+  r'del'
   return t
 
 def t_AND(t):
@@ -66,6 +66,9 @@ def t_CHOOSE(t):
   r'c'
   return t
 
+
+# Data tokens
+
 def t_NUMBER(t):
   r'\d+'
   try:
@@ -80,7 +83,15 @@ def t_MACRO(t):
   return t
 
 
+# Identifiers
 
+def t_IDENT(t):
+  r'[a-zA-Z_][a-zA-Z0-9_]*'
+  return t
+
+
+
+# Grouping symbols and miscellanea
 t_REP  = r'\^'
 t_LPAR = r'\('
 t_RPAR = r'\)'
@@ -90,22 +101,21 @@ t_LBRC = r'{'
 t_RBRC = r'}'
 t_DOT  = r'\.'
 
-
+# Vector unaries
 t_SUM  = r'\#'
 t_AVG  = r'@'
 t_SAMM = r'\?'
 t_EVEN = r':'
 t_ODD  = r'&'
 
+# Arithmetic and algebraic operators
 t_EXP  = r'\*\*'
 t_VEXP = r'<\*\*>'
 t_LOG  = r'~'
 t_VLOG = r'<~>'
-
 t_VCHOOSE= r'<c>'
 t_FACT = r'!'
 t_VFACT= r'<!>'
-
 t_MUL  = r'\*'
 t_VMUL = r'<\*>'
 t_DIV  = r'/'
@@ -116,12 +126,12 @@ t_MOD  = r'%'
 t_VMOD = r'<%>'
 t_ROOT = r'%%'
 t_VROOT= r'<%%>'
-
 t_ADD  = r'\+'
 t_VADD = r'<\+>'
 t_SUB  = r'-'
 t_VSUB = r'<->'
 
+# Comparison operators
 t_EQ   = r'=='
 t_NEQ  = r'!='
 t_GEQ  = r'>='
@@ -129,16 +139,17 @@ t_LEQ  = r'<='
 t_GT   = r'>'
 t_LT   = r'<'
 
+# Type subverting operators
 t_CAT  = r'\$'
 t_VCAT = r'<\$>'
 
+# Storage manipulators
 t_INS  = r'<-'
 t_YIELD= r'->'
 t_ASS  = r'='
-t_DEL  = r';'
 
+# Separators
 t_COM  = r','
-
 
 
 t_ignore = ' \t\n\r'
@@ -151,10 +162,6 @@ def t_error(t):
 # lexer
 import ply.lex as lex
 lexer = lex.lex()
-
-
-# the value of the last roll is saved here, to be identified by `_`
-report = None
 
 
 # parsing rules
@@ -192,6 +199,8 @@ def p_dot_assign(t):
   '''expr : IDENT DOT IDENT ASS expr'''
   t[0] = dice_vars[t[1]][t[3]] = t[5]
 
+
+# Expressions
 def p_expr_fact(t):
   '''expr : expr FACT'''
   t[0] = factorial(t[1])
@@ -364,6 +373,18 @@ def p_expr_tail(t):
   
   t[0] = t[0][0] if len(t[0]) == 1 else t[0]
 
+def p_conditional(t):
+  '''expr : expr IF expr ELSE expr
+          | expr IF ELSE expr
+  '''
+  if len(t) == 6:
+    t[0] = t[1] if t[3] else t[5]
+  else:
+    t[0] = t[1] if t[1] else t[4]
+
+
+
+# Concrete values
 def p_expr_unit(t):
   '''expr : LPAR expr RPAR
           | NUMBER
@@ -379,6 +400,8 @@ def p_ident(t):
   'expr : IDENT'
   t[0] = dice_vars[t[1]]
 
+
+# Function-related rules
 def p_func_call(t):
   '''expr : func_expr expr'''
   args, algo = t[1].split('->')
@@ -407,6 +430,9 @@ def p_func_assign(t):
   t[0] = t[3]
   dice_vars[t[1]] = t[3]
 
+
+
+# Variadic constructions
 def p_param_list(t):
   '''param_list : LBRK elements RBRK
                 | LBRK RBRK
@@ -436,9 +462,13 @@ def p_elements(t):
     t[0] = [t[1]]
   
 
+
+
+# Memory manipulation
 def p_index_expr(t):
   r'expr : expr LBRC expr RBRC'
   t[0] = t[1][t[3]]
+
 
 def p_assign_expr(t):
   '''expr : IDENT ASS expr
@@ -451,30 +481,26 @@ def p_assign_expr(t):
     t[0] = {}
     dice_vars[t[1]] = {}
 
-def p_conditional(t):
-  '''expr : expr IF expr ELSE expr
-          | expr IF ELSE expr
-  '''
-  if len(t) == 6:
-    t[0] = t[1] if t[3] else t[5]
-  else:
-    t[0] = t[1] if t[1] else t[4]
 
 def p_insert_expr(t):
   '''expr : IDENT INS expr COM expr'''
   t[0] = t[5]
   dice_vars[t[1]][t[3]] = t[5]
 
+
 def p_delete(t):
   '''expr : DEL IDENT'''
   t[0] = dice_vars[t[2]]
   del dice_vars[t[2]]
 
+
+
 def p_error(t):
-  print(report)
   raise ParseError(str(t) + " hosed us")
 
+
 parser = yacc.yacc(optimize=1, debug=True)
+
 
 def roll(expr):
   try:
