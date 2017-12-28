@@ -17,7 +17,10 @@ def scan(msg):
 def notify(rolls, msg):
   return '%s rolled:\n  %s' % (
     msg.author.display_name,
-    str(rolls)
+    [
+      ('%s:\n\t'%roll[0]) + '\n\t'.join([str(res) for res in roll[1]]) for
+      roll in rolls
+    ]
   )
 
 
