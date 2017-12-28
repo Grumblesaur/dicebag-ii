@@ -9,30 +9,33 @@ import global_vars
 
 from auth import *
 
+client = discord.Client(max_messages=128)
 current_time = 0
 last_time    = 0
 
 @client.event
 async def on_message(msg):
-  last_time = current_time
-  current_time = time.localtime()
+  global current_time
+  global last_time
+  current_time = time.time()
   rolls = dice.scan(msg.content)
-  turns = turns.scan(msg.content)
+  orders = turns.scan(msg.content)
 
   if rolls:
     await client.send_message(msg.channel, dice.notify(rolls, msg))
 
-  if turns:
-    await client.send_message(msg.channel, turns.notify(rolls, msg))
+  if orders:
+    await client.send_message(msg.channel, turns.notify(rolls))
   
   
   # save state every 5 minutes
   if current_time - last_time > 300:
     global_vars.save_state()
+    last_time = time.time()
 
-if __name__ == '__main__':
-  global_vars.load_state()
-  client = discord.Client(max_messages=128)
-  client.run(bot_token)
+
+
+global_vars.load_state()
+client.run(bot_token)
   
 

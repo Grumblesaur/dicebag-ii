@@ -14,7 +14,7 @@ def scan(msg):
       print('bad roll:', token, e)
   return rolls
 
-def notify(rolls, msg=None):
+def notify(rolls, msg):
   return '%s rolled:\n%s' % (
     msg.author.display_name,
     '\n'.join(['\n'.join(
