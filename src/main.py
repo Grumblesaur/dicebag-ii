@@ -20,10 +20,10 @@ async def on_message(msg):
   turns = turns.scan(msg.content)
 
   if rolls:
-    await client.send_message(msg.channel, dice.message(rolls, msg))
+    await client.send_message(msg.channel, dice.notify(rolls, msg))
 
   if turns:
-    await client.send_message(msg.channel, turns.message(rolls, msg))
+    await client.send_message(msg.channel, turns.notify(rolls, msg))
   
   
   # save state every 5 minutes
