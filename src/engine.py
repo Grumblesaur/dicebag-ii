@@ -419,11 +419,11 @@ def p_expr_list(t):
 
 
 def p_elements(t):
-  '''elements : elements COM expr
+  '''elements : expr COM elements
               | expr
   '''
   if len(t) == 4:
-    t[0] = t[1] + [t[3]]
+    t[0] = [t[1]] + t[3]
   else:
     t[0] = [t[1]]
   
