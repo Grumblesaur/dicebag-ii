@@ -183,9 +183,43 @@ ifelse: The conditional operator. Usage: a if b else c, where `a`, `b`, and
        
         Alternate usage: a if else b, where `a` and `b` are expressions of
         any type. This operation returns `a` when `a` is not "falsy", 
-        otherwise it returns `b`. 
-  
+        otherwise it returns `b`.   
+        
+        
+        Certain operators are vectorized, by wrapping them in angle brackets,
+        such as <*>, <$>, <+>, where the left and right operands are each
+        each a list. These operations itemwise iterate through the contents
+        of the operands and applies the function of the operator to each
+        pair of elements, appending result to a list, which is the output.
+
+
+        It is also possible to treat variables as structures with other
+        values contained within. To create an empty structure, use this syntax:
+        
+          identifier_name = { }
+        
+        This will initialize the variable  identifier_name  as an empty
+        structure. There are two equivalent syntactic forms for editing the
+        values contained within the structure.
+        
+          identifier_name <- field_name , expression
+          identifier_name.field_name = expression
+        
+        Either of these forms will create a field in the structure
+        identifier_name  with the name  field_name, set to the value of
+        expression,  or change it to  expression  if it already exists.
+        A field can be accessed as a part of an expression, merely by
+        using the dot syntax:
+        
+          identifier_name.field_name
+        
+        This will return the value of  field_name  in  identifier_name.
+        
 ```
+
+
+
+
 
 
 

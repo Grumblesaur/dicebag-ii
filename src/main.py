@@ -4,6 +4,7 @@ import discord
 import time
 
 import dice
+import info
 import turns
 import global_vars
 
@@ -20,13 +21,16 @@ async def on_message(msg):
   current_time = time.time()
   rolls = dice.scan(msg.content)
   orders = turns.scan(msg.content)
-
+  helptext = info.scan(msg.content)
+  
   if rolls:
     await client.send_message(msg.channel, dice.notify(rolls, msg))
 
   if orders:
     await client.send_message(msg.channel, turns.notify(rolls))
   
+  if helptext:
+    await client.send_message(msg.channel, helptext)
   
   # save state every 5 minutes
   if current_time - last_time > 300:
