@@ -1,1 +1,1 @@
-{'r': "a -> ''a''", 'z': " -> ''z''", '_': 13, 'f': "r,q -> '(r ** q) / r * q'", 'lazy': " -> ''is this broken?''", 'm': " -> ''m''"}
+{'_': 'lucretius', 'calvus_and_siblings': ['calvus', 'senna', 'lucretius'], 'pcs': ['has many names', 'calvus', 'falwyn', 'heniele', 'vedam', 'lirim', 'arano']}
