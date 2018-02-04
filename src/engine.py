@@ -1,5 +1,5 @@
 from math import log, factorial
-from random import randint
+from random import randint, choice
 from global_vars import dice_vars
 import ply.yacc as yacc
 import sys
@@ -22,14 +22,15 @@ tokens = [ # token declarations
   'VFACT',  'CHOOSE', 'VCHOOSE',
   'YIELD',  'GT',     'LT',    'EQ',
   'GEQ',    'LEQ',    'NEQ',   'IF',
-  'ELSE',   'AND',    'OR',    'NOT'
+  'ELSE',   'AND',    'OR',    'NOT',
+  'LEN',    'SEL'
 ]
 
 reserved = {
   'd'    : 'DIE',    'h'   : 'HIGH', 'l'   : 'LOW',
   'c'    : 'CHOOSE', 'or'  : 'OR',   'and' : 'AND',
   'not'  : 'NOT',    'del' : 'DEL',  'if'  : 'IF',
-  'else' : 'ELSE',
+  'else' : 'ELSE',   'len' : 'LEN',  'sel' : 'SEL'
 }
 
 # Identifiers
@@ -148,7 +149,7 @@ precedence = (
   ('left',  'CHOOSE', 'VCHOOSE'),
   ('left',  'LOG', 'VLOG'),
   ('right', 'EXP', 'VEXP'),
-  ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD'),
+  ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD', 'LEN', 'SEL'),
   ('right', 'LOW', 'HIGH'),
   ('left', 'LBRC', 'RBRC', 'DOT'),
   ('left',  'DIE'),
@@ -327,6 +328,13 @@ def p_expr_odd(t):
   'expr : ODD expr'
   t[0] = [x for x in t[2] if x % 2]
 
+def p_expr_len(t):
+  'expr : LEN expr'
+  t[0] = len(t[2])
+
+def p_expr_sel(t):
+  'expr : SEL expr'
+  t[0] = choice(t[2])
 
 def p_expr_tail(t):
   '''expr : expr LOW  expr
