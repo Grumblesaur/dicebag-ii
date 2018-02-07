@@ -44,12 +44,13 @@ def t_IDENT(t):
 
 def t_NUMBER(t):
   r'(\d*\.)?\d+'
+  n = None
   try:
-    f       = float(t.value)
-    t.value = int(t.value)
-    t.value = t.value if f == t.value else f
-  except ValueError:
-    raise ParseError('"%s" is not a number' % t.value)
+    f = float(t.value)
+    n = int(f)
+  except ValueError as e:
+    raise ParseError('"%s" is not a number, %s' % (t.value, e))
+  t.value = n if f == n else f
   return t
 
 def t_MACRO(t):
