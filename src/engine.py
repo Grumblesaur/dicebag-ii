@@ -17,7 +17,7 @@ tokens = [ # token declarations
   'ROOT',   'VADD',   'VSUB',  'VMUL',
   'VDIV',   'VFDIV',  'VEXP',  'VLOG',
   'VCAT',   'VMOD',   'VROOT', 'LBRC',
-  'RBRC',   'INS',    'DOT',   'CAT',
+  'RBRC',   'INS',    'CAT',
   'DIE',    'HIGH',   'LOW',   'FACT',
   'VFACT',  'CHOOSE', 'VCHOOSE',
   'YIELD',  'GT',     'LT',    'EQ',
@@ -42,14 +42,14 @@ def t_IDENT(t):
     t.type = reserved[t.value]
   return t
 
-# Data tokens
-
 def t_NUMBER(t):
-  r'\d+'
+  r'(\d*\.)?\d+'
   try:
+    f       = float(t.value)
     t.value = int(t.value)
+    t.value = t.value if f == t.value else f
   except ValueError:
-    raise ParseError('"%s" is not an integer' % t.value)
+    raise ParseError('"%s" is not a number' % t.value)
   return t
 
 def t_MACRO(t):
@@ -66,7 +66,6 @@ t_LBRK = r'\['
 t_RBRK = r'\]'
 t_LBRC = r'{'
 t_RBRC = r'}'
-t_DOT  = r'\.'
 
 # Vector unaries
 t_SUM  = r'\#'
@@ -151,21 +150,10 @@ precedence = (
   ('right', 'EXP', 'VEXP'),
   ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD', 'LEN', 'SEL'),
   ('right', 'LOW', 'HIGH'),
-  ('left', 'LBRC', 'RBRC', 'DOT'),
+  ('left', 'LBRC', 'RBRC'),
   ('left',  'DIE'),
   ('left', 'REP'),
 )
-
-
-# The dot methods are syntactic sugar
-def p_dot(t):
-  '''expr : IDENT DOT IDENT'''
-  t[0] = dice_vars[t[1]][t[3]]
-
-def p_dot_assign(t):
-  '''expr : IDENT DOT IDENT ASS expr'''
-  t[0] = dice_vars[t[1]][t[3]] = t[5]
-
 
 # Expressions
 def p_expr_fact(t):

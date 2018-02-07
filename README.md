@@ -203,15 +203,11 @@ ifelse: The conditional operator. Usage: a if b else c, where `a`, `b`, and
         values contained within the structure.
         
           identifier_name <- field_name , expression
-          identifier_name.field_name = expression
         
-        Either of these forms will create a field in the structure
-        identifier_name  with the name  field_name, set to the value of
-        expression,  or change it to  expression  if it already exists.
         A field can be accessed as a part of an expression, merely by
-        using the dot syntax:
+        using the bracket syntax:
         
-          identifier_name.field_name
+          identifier_name['field_name']
         
         This will return the value of  field_name  in  identifier_name.
         
