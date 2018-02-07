@@ -17,7 +17,7 @@ tokens = [ # token declarations
   'ROOT',   'VADD',   'VSUB',  'VMUL',
   'VDIV',   'VFDIV',  'VEXP',  'VLOG',
   'VCAT',   'VMOD',   'VROOT', 'LBRC',
-  'RBRC',   'INS',    'CAT',
+  'RBRC',   'INS',    'CAT',   'IN',
   'DIE',    'HIGH',   'LOW',   'FACT',
   'VFACT',  'CHOOSE', 'VCHOOSE',
   'YIELD',  'GT',     'LT',    'EQ',
@@ -30,7 +30,8 @@ reserved = {
   'd'    : 'DIE',    'h'   : 'HIGH', 'l'   : 'LOW',
   'c'    : 'CHOOSE', 'or'  : 'OR',   'and' : 'AND',
   'not'  : 'NOT',    'del' : 'DEL',  'if'  : 'IF',
-  'else' : 'ELSE',   'len' : 'LEN',  'sel' : 'SEL'
+  'else' : 'ELSE',   'len' : 'LEN',  'sel' : 'SEL',
+  'in'   : 'IN'
 }
 
 # Identifiers
@@ -137,6 +138,7 @@ precedence = (
   ('right',  'ASS'),
   ('nonassoc', 'INS'),
   ('left',  'CAT', 'VCAT'),
+  ('nonassoc', 'IN'),
   ('left',  'OR'),
   ('left',  'AND'),
   ('right', 'NOT'),
@@ -283,6 +285,10 @@ def p_expr_and(t):
 def p_expr_not(t):
   'expr : NOT expr'
   t[0] = not t[2]
+
+def p_expr_in(t):
+  'expr : expr IN expr'
+  t[0] = t[1] in t[3]
 
 def p_expr_sign(t):
   '''expr : ADD expr %prec ABS
