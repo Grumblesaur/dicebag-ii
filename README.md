@@ -2,8 +2,8 @@
 https://github.com/Grumblesaur/dicebag-ii.git
 
 `dicebag` is a chatbot for Discord whose primary feature is a mathematical
-expression engine intended to be used for rolling random numbers and per-
-forming calculations that could be pertinent to tabletop games. It also
+expression engine intended to be used for rolling random numbers and
+performing calculations that could be pertinent to tabletop games. It also
 supports several common scientific calculator functions.
 
 ## dicelang
@@ -165,6 +165,9 @@ operator precedence, from tightest-binding to loosest-binding.
        are expressions of any type. This operation returns `a` if `a` is
        not "falsy", `b` if `a` is "falsy" and `b` isn't, or 0 otherwise.
   
+  in : The list membership operator. Usage: a in b, where `a` is an expression
+       of any type and `b` is an expression which resolves to a list. This
+       operation returns 1 if `a` is equal to an element in `b`, otherwise 0.
   
   $  : The digit concatenation operator. Usage: a $ b, where `a` and `b`
        are expressions that resolve to scalars. This operation coerces both
