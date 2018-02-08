@@ -45,7 +45,7 @@ def snark(username, error):
   ]
   
   return choice(responses) % choice(
-    names + ([username] * (len(names) / 3))
+    names + ([username] * (len(names) // 3))
   ) + " (%s)" % error
   
 
