@@ -461,9 +461,12 @@ def p_pairs(t):
   else:
     t[0] = [[t[1], t[3]]]
 
+def p_expr_dictexpr(t):
+  '''expr : dictexpr'''
+  t[0] = t[1]
+
 def p_assign_expr(t):
   '''expr : IDENT ASS expr
-          | IDENT ASS dictexpr
           | IDENT LBRC expr RBRC ASS expr
   '''
   if len(t) == 4:
