@@ -31,9 +31,22 @@ def snark(username, error):
       + " now, %s!",
     "No, %s. Not gonna happen.",
     "Well, %s, that was inconsiderate.",
-    "Could you behave for two seconds, %s?"
+    "Could you behave for two seconds, %s?",
+    "How many times do we have to teach you this lesson, %s?"
   ]
-  return choice(responses) % username + " (%s)" % error
+  names = [
+    'jerk', 'fuckface', 'moron', 'dirtfarmer',
+    'dingus', 'useless', 'bonehead', 'milk-drinker',
+    'skeleton man', 'shitlord', 'bird brain',
+    'dick twiddler', 'raggedy muffin child',
+    'shifty fister', 'ass-wrangler', 'jumbo toddler',
+    'turd burglar', 'pit sniffer', 'old fart',
+    'witless wonder', 'freakenstein', 'dingus khan'
+  ]
+  
+  return choice(responses) % choice(
+    names + ([username] * (len(names) / 3))
+  ) + " (%s)" % error
   
 
 def notify(rolls, msg):
