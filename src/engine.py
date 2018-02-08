@@ -23,15 +23,17 @@ tokens = [ # token declarations
   'YIELD',  'GT',     'LT',    'EQ',
   'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',
-  'LEN',    'SEL'
+  'LEN',    'SEL',    'RED',   'GREEN',
+  'STR',    'NUM'
 ]
 
 reserved = {
-  'd'    : 'DIE',    'h'   : 'HIGH', 'l'   : 'LOW',
-  'c'    : 'CHOOSE', 'or'  : 'OR',   'and' : 'AND',
-  'not'  : 'NOT',    'del' : 'DEL',  'if'  : 'IF',
-  'else' : 'ELSE',   'len' : 'LEN',  'sel' : 'SEL',
-  'in'   : 'IN'
+  'd'    : 'DIE',    'h'   : 'HIGH', 'l'     : 'LOW',
+  'c'    : 'CHOOSE', 'or'  : 'OR',   'and'   : 'AND',
+  'not'  : 'NOT',    'del' : 'DEL',  'if'    : 'IF',
+  'else' : 'ELSE',   'len' : 'LEN',  'sel'   : 'SEL',
+  'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
+  'str'  : 'STR',    'num' : 'NUM'
 }
 
 # Identifiers
@@ -134,6 +136,7 @@ lexer = lex.lex()
 
 # parsing rules
 precedence = (
+  ('right',  'RED', 'GREEN'),
   ('right',  'IF'),
   ('right',  'ASS'),
   ('nonassoc', 'INS'),
@@ -141,7 +144,7 @@ precedence = (
   ('nonassoc', 'IN'),
   ('left',  'OR'),
   ('left',  'AND'),
-  ('right', 'NOT'),
+  ('right', 'NOT', 'STR', 'NUM'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
@@ -159,6 +162,29 @@ precedence = (
 )
 
 # Expressions
+def p_expr_color(t):
+  '''expr : GREEN expr
+          | RED expr'''
+  if t[1] == 'green':
+    t[0] = "```diff\n+ %s```" % str(t[2])
+  else:
+    t[0] = "```diff\n- %s```" % str(t[2])
+  
+def p_expr_cast(t):
+  '''expr : STR expr
+          | NUM expr'''
+  if t[1] == 'str':
+    t[0] = str(t[2])
+  else:
+    x = None
+    try:
+      x = float(t[2])
+      y = int(x)
+    except ValueError as e:
+      raise ParseError(e)
+    t[0] = y if y == x else x 
+      
+  
 def p_expr_fact(t):
   '''expr : expr FACT'''
   t[0] = factorial(t[1])
