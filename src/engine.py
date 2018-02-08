@@ -494,7 +494,7 @@ def p_delete(t):
 
 
 def p_error(t):
-  raise ParseError(str(t) + " hosed us")
+  raise ParseError(str(t))
 
 
 parser = yacc.yacc(optimize=1, debug=True)
