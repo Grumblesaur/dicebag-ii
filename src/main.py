@@ -19,7 +19,7 @@ async def on_message(msg):
   global current_time
   global last_time
   current_time = time.time()
-  rolls = dice.scan(msg.content)
+  rolls = dice.scan(msg.content, msg.author.nick or msg.author.name)
   orders = turns.scan(msg.content)
   helptext = info.scan(msg.content)
   

@@ -435,20 +435,43 @@ def p_elements(t):
 
 # Memory manipulation
 def p_index_expr(t):
-  r'expr : expr LBRC expr RBRC'
-  t[0] = t[1][t[3]]
+  '''expr : expr LBRC expr RBRC
+          | IDENT LBRC expr RBRC
+  '''
+  try:
+    t[0] = t[1][t[3]]
+  except Exception:
+    t[0] = dice_vars[t[1]][t[3]]
 
+def p_dictexpr(t):
+  '''dictexpr : LBRC pairs RBRC
+              | LBRC RBRC
+  '''
+  if len(t) == 4:
+    t[0] = dict(t[2])
+  else:
+    t[0] = { }
+
+def p_pairs(t):
+  '''pairs : expr EVEN expr COM pairs
+           | expr EVEN expr
+  '''
+  if len(t) == 6:
+    t[0] = [[t[1], t[3]]] + t[5]
+  else:
+    t[0] = [[t[1], t[3]]]
 
 def p_assign_expr(t):
   '''expr : IDENT ASS expr
-          | IDENT ASS LBRC RBRC
+          | IDENT ASS dictexpr
+          | IDENT LBRC expr RBRC ASS expr
   '''
   if len(t) == 4:
     t[0] = t[3]
     dice_vars[t[1]] = t[3]
   else:
-    t[0] = {}
-    dice_vars[t[1]] = {}
+    t[0] = t[6]
+    dice_vars[t[1]][t[3]] = t[6]
 
 
 def p_insert_expr(t):
@@ -458,10 +481,16 @@ def p_insert_expr(t):
 
 
 def p_delete(t):
-  '''expr : DEL IDENT'''
-  t[0] = dice_vars[t[2]]
-  del dice_vars[t[2]]
-
+  '''expr : DEL IDENT
+          | DEL IDENT LBRC expr RBRC
+  '''
+  if len(t) == 3:
+    t[0] = dice_vars[t[2]]
+    del dice_vars[t[2]]
+  else:
+    t[0] = (dice_vars[t[2]])[t[4]]
+    del (dice_vars[t[2]])[t[4]]
+  
 
 
 def p_error(t):
