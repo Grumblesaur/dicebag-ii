@@ -152,6 +152,14 @@ operator precedence, from tightest-binding to loosest-binding.
        expressions of the same type. This operation returns 1 if `a` is at
        least as small as `b`, otherwise 0.
   
+  str: The string conversion operator. Usage: str a, where `a` is an
+       expression of any type. This operation returns the string
+       representation of `a`.
+  
+  num: The numeric conversion operator. Usage: num a, where `a` is an
+       expression of any type. This operation attempts to return a floating
+       point number, will prefer an integer if the float has no fractional
+       part, or will raise an exception if neither representation is possible.
   
   not: The boolean complement operator. Usage: not a, where `a` is an
        expression of any type. This operation returns 1 when `a` is a
@@ -188,6 +196,12 @@ ifelse: The conditional operator. Usage: a if b else c, where `a`, `b`, and
         any type. This operation returns `a` when `a` is not "falsy", 
         otherwise it returns `b`.   
         
+  red : The red color operator. Usage: red a, where `a` is an expression
+        of any type. This operation converts `a` to a string and surrounds
+        it with markdown which will cause it to appear red in Discord. This
+        modified string is returned.
+  
+green : Exactly the same as `red`, but green.
         
         Certain operators are vectorized, by wrapping them in angle brackets,
         such as <*>, <$>, <+>, where the left and right operands are each
@@ -202,17 +216,55 @@ ifelse: The conditional operator. Usage: a if b else c, where `a`, `b`, and
           identifier_name = { }
         
         This will initialize the variable  identifier_name  as an empty
-        structure. There are two equivalent syntactic forms for editing the
-        values contained within the structure.
+        structure.
         
-          identifier_name <- field_name , expression
+          identifier_name = { key1 : val1 , ..., keyn : valn}
         
         A field can be accessed as a part of an expression, merely by
-        using the bracket syntax:
+        using the brace syntax:
         
-          identifier_name['field_name']
+          identifier_name{'field_name'}
         
         This will return the value of  field_name  in  identifier_name.
+
+        
+        Simple function calls are possible. The syntax for constructing a
+        function looks like this:
+        
+          ['arg'] -> 'do_something_with_arg'
+        
+        The value of this can be assigned to a variable.
+        
+          f = ['arg'] -> 'do_something_with_arg'
+        
+        Functions can have as many arguments as a list can hold, or none.
+        Here's an example:
+        
+          floor = ['a_number'] -> '0 $ a_number'
+        
+        And it can be called like this:
+        
+          floor[137.2]
+        
+        Functions are actually unary operators that perform their operations
+        on lists, so the [ ] are actually just a list object. The formal
+        parameters must be given as strings, but referenced in the function
+        body (which itself is a string) without quotes. When called, the 
+        arguments to the function undergo a find-and-replace operation in list
+        order.
+        
+        Because of the simple text-replacement mechanism, there are two major
+        pitfalls: parameters whose names are substrings of any operators you
+        use in the function (such as having a formal parameter `s` and using
+        the `str` operator) will cause part of the operator's name to be
+        overwritten by the argument passed to the function, causing either an
+        exception, or undesired computations. The simple string storage also
+        subverts the necessity for an abstract syntax tree, which means
+        functions can be stored in plaintext, but this also means that
+        nested function calls and recursion are impossible.
+        
+        
+        
         
 ```
 
