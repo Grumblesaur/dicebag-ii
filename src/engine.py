@@ -24,7 +24,7 @@ tokens = [ # token declarations
   'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM'
+  'STR',    'NUM',    'PIPE',  'VPIPE'
 ]
 
 reserved = {
@@ -96,6 +96,8 @@ t_MOD  = r'%'
 t_VMOD = r'<%>'
 t_ROOT = r'%%'
 t_VROOT= r'<%%>'
+t_PIPE = r'\|'
+t_VPIPE= r'<\|>'
 t_ADD  = r'\+'
 t_VADD = r'<\+>'
 t_SUB  = r'-'
@@ -122,7 +124,7 @@ t_ASS  = r'='
 t_COM  = r','
 
 
-t_ignore = ' \t\n\r'
+t_ignore = ' \t\n\r`'
 
 
 def t_error(t):
@@ -146,7 +148,7 @@ precedence = (
   ('left',  'AND'),
   ('right', 'NOT', 'STR', 'NUM'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
-  ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
+  ('left',  'ADD', 'SUB', 'PIPE', 'VADD', 'VSUB', 'VPIPE'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
   ('right', 'ROOT', 'VROOT'),
@@ -207,6 +209,7 @@ def p_expr_vchoose(t):
 def p_expr_vbinop(t):
   '''expr : expr VCAT expr
           | expr VADD expr
+          | expr VPIPE expr
           | expr VSUB expr
           | expr VMUL expr
           | expr VDIV expr
@@ -223,6 +226,8 @@ def p_expr_vbinop(t):
     )
   elif t[2] == '<+>':
     t[0] = [sum(x) for x in zip(t[1], t[3])]
+  elif t[2] == '<|>':
+    t[0] = [v + w for v, w in zip(t[1], t[3])]
   elif t[2] == '<->':
     t[0] = [x[0] - x[1] for x in zip(t[1], t[3])]
   elif t[2] == '<*>':
@@ -244,6 +249,7 @@ def p_expr_vbinop(t):
 def p_expr_binop(t):
   '''expr : expr CAT  expr
           | expr ADD  expr
+          | expr PIPE expr
           | expr SUB  expr
           | expr MUL  expr
           | expr DIV  expr
@@ -257,6 +263,8 @@ def p_expr_binop(t):
   if   t[2] == '$':
     t[0] = int(''.join(map(lambda x: str(int(x)), (t[1], t[3]))))
   elif t[2] == '+':
+    t[0] = t[1] + t[3]
+  elif t[2] == '|':
     t[0] = t[1] + t[3]
   elif t[2] == '-':
     t[0] = t[1] - t[3]
@@ -398,7 +406,7 @@ def p_ident(t):
 
 # Function-related rules
 def p_func_call(t):
-  '''expr : func_expr expr'''
+  '''expr : func_expr list_expr'''
   args, algo = t[1].split('->')
   args = [s.strip() for s in args.split(',')]
   algo = algo.strip().strip('"').strip("'")
@@ -437,9 +445,13 @@ def p_param_list(t):
   else:
     t[0] = []
 
-def p_expr_list(t):
-  '''expr : LBRK elements RBRK
-          | LBRK RBRK
+def p_list(t):
+  '''expr : list_expr'''
+  t[0] = t[1]
+
+def p_list_expr(t):
+  '''list_expr : LBRK elements RBRK
+               | LBRK RBRK
   '''
   if len(t) == 4:
     t[0] = t[2]
