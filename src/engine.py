@@ -146,7 +146,7 @@ precedence = (
   ('left',  'AND'),
   ('right', 'NOT', 'STR', 'NUM', 'CALL'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
-  ('left',  'ADD', 'SUB', 'PIPE', 'VADD', 'VSUB', 'VPIPE'),
+  ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
   ('right', 'ROOT', 'VROOT'),
