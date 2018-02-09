@@ -24,7 +24,7 @@ tokens = [ # token declarations
   'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM',    'PIPE',  'VPIPE'
+  'STR',    'NUM',    'CALL'
 ]
 
 reserved = {
@@ -146,7 +146,7 @@ precedence = (
   ('nonassoc', 'IN'),
   ('left',  'OR'),
   ('left',  'AND'),
-  ('right', 'NOT', 'STR', 'NUM'),
+  ('right', 'NOT', 'STR', 'NUM', 'CALL'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
   ('left',  'ADD', 'SUB', 'PIPE', 'VADD', 'VSUB', 'VPIPE'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
@@ -209,7 +209,6 @@ def p_expr_vchoose(t):
 def p_expr_vbinop(t):
   '''expr : expr VCAT expr
           | expr VADD expr
-          | expr VPIPE expr
           | expr VSUB expr
           | expr VMUL expr
           | expr VDIV expr
@@ -226,8 +225,6 @@ def p_expr_vbinop(t):
     )
   elif t[2] == '<+>':
     t[0] = [sum(x) for x in zip(t[1], t[3])]
-  elif t[2] == '<|>':
-    t[0] = [v + w for v, w in zip(t[1], t[3])]
   elif t[2] == '<->':
     t[0] = [x[0] - x[1] for x in zip(t[1], t[3])]
   elif t[2] == '<*>':
@@ -249,7 +246,6 @@ def p_expr_vbinop(t):
 def p_expr_binop(t):
   '''expr : expr CAT  expr
           | expr ADD  expr
-          | expr PIPE expr
           | expr SUB  expr
           | expr MUL  expr
           | expr DIV  expr
@@ -263,8 +259,6 @@ def p_expr_binop(t):
   if   t[2] == '$':
     t[0] = int(''.join(map(lambda x: str(int(x)), (t[1], t[3]))))
   elif t[2] == '+':
-    t[0] = t[1] + t[3]
-  elif t[2] == '|':
     t[0] = t[1] + t[3]
   elif t[2] == '-':
     t[0] = t[1] - t[3]
@@ -415,7 +409,7 @@ def p_func_call(t):
   t[0] = parser.parse(algo)
 
 def p_named_func_call(t):
-  '''expr : IDENT expr'''
+  '''expr : IDENT list_expr'''
   args, algo = dice_vars[t[1]].split('->')
   args = [s.strip() for s in args.split(',')]
   algo = algo.strip().strip('"').strip("'")
