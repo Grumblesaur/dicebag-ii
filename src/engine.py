@@ -331,8 +331,11 @@ def p_expr_meta_rep(t):
 
 def p_expr_sum(t):
   'expr : SUM expr'
-  t[0] = sum(t[2])
-
+  try:
+    t[0] = sum(t[2])
+  except TypeError:
+    t[0] = ''.join(t[2])
+  
 def p_expr_avg(t):
   'expr : AVG expr'
   t[0] = sum(t[2]) / len(t[2])
