@@ -41,8 +41,6 @@ async def on_message(msg):
     global_vars.save_state()
     last_time = time.time()
 
-
-
 global_vars.load_state()
 client.run(bot_token)
   
