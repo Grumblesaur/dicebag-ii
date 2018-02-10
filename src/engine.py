@@ -24,7 +24,7 @@ tokens = [ # token declarations
   'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM',    'CALL'
+  'STR',    'NUM',    'NAME'
 ]
 
 reserved = {
@@ -33,7 +33,7 @@ reserved = {
   'not'  : 'NOT',    'del' : 'DEL',  'if'    : 'IF',
   'else' : 'ELSE',   'len' : 'LEN',  'sel'   : 'SEL',
   'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
-  'str'  : 'STR',    'num' : 'NUM'
+  'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
 }
 
 # Identifiers
@@ -144,7 +144,7 @@ precedence = (
   ('nonassoc', 'IN'),
   ('left',  'OR'),
   ('left',  'AND'),
-  ('right', 'NOT', 'STR', 'NUM', 'CALL'),
+  ('right', 'NOT', 'STR', 'NUM', 'NAME'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
@@ -523,7 +523,12 @@ def p_delete(t):
   else:
     t[0] = (dice_vars[t[2]])[t[4]]
     del (dice_vars[t[2]])[t[4]]
-  
+
+def p_name(t):
+  '''expr : NAME expr'''
+  # placeholder code; will call tesnames code
+  # when the functionality becomes available
+  t[0] = t[2]  
 
 
 def p_error(t):
