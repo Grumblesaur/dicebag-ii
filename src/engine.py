@@ -24,7 +24,8 @@ tokens = [ # token declarations
   'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM',    'NAME'
+  'STR',    'NUM',    'NAME',  'FALSE',
+  'TRUE',
 ]
 
 reserved = {
@@ -34,6 +35,7 @@ reserved = {
   'else' : 'ELSE',   'len' : 'LEN',  'sel'   : 'SEL',
   'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
+  'false': 'FALSE',  'true': 'TRUE'
 }
 
 # Identifiers
@@ -162,6 +164,11 @@ precedence = (
 )
 
 # Expressions
+def p_expr_bool_t(t):
+  '''expr : TRUE
+          | FALSE'''
+  t[0] = t[1] == 'true'
+
 def p_expr_color(t):
   '''expr : GREEN expr
           | RED expr'''

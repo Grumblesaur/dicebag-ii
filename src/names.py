@@ -9,6 +9,10 @@ defaults = {
   'subrace'           : ''
 }
 
+sans_last = [
+  'altmer', 'argonian', 'bosmer', 'redguard'
+]
+
 options = {
   'race' : [
     'altmer',   'argonian', 'bosmer',
@@ -40,6 +44,10 @@ def sanitize(namespec):
     namespec['subrace'] = ''
   elif namespec['subrace'] == 'reachman' and namespec['race'] != 'breton':
     namspec['subrace'] = ''
+  
+  if namespec['race'] in sans_last:
+    namespec['last'] = False
+    namespec['last starts with'] = ''
   
   return namespec
   
