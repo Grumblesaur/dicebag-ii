@@ -1,37 +1,19 @@
 from engine import roll, ParseError
 from random import choice
 
-responses = [
-  "You really ate the bones, %s.",
-  "Yo, %s, would you kindly stop breaking things?",
-  "Don't waste my time, %s.",
-  "Fuck you, %s!",
-  "Sorry, %s, I'm not really feeling up to your bullshit today.",
-  "Hey %s! Read the documentation!",
-  "Keep your hands to yourself, %s!",
-  "Eyes on your own work there, %s!",
-  "Syntax error: go fuck yourself, %s.",
-  "java.lang.Exception: HAH! This is Python! You really screwed the pooch"
-    + " now, %s!",
-  "No, %s. Not gonna happen.",
-  "Well, %s, that was inconsiderate.",
-  "Could you behave for two seconds, %s?",
-  "How many times do we have to teach you this lesson, %s?",
-  "Must you break everything you touch, %s?",
-  "Do you live in a cave, %s?",
-  ]
-names = [
-  'jerk', 'fuckface', 'moron', 'dirtfarmer',
-  'dingus', 'useless', 'bonehead', 'milk-drinker',
-  'skeleton man', 'shitlord', 'bird brain',
-  'dick-twiddler', 'raggedy muffin child',
-  'shifty fister', 'ass-wrangler', 'jumbo toddler',
-  'turd-burglar', 'pit-sniffer', 'old fart',
-  'witless wonder', 'freakenstein', 'dingus khan',
-  'toad-tickler', 'dick chimp', 'mud stump',
-  'nerd-herder', 'turd-surfer', 'genius',
-  'Ed-boy'
-]
+insults = []
+responses = []
+
+def init_insults():
+  insult_file = 'insults/insults'
+  response_file = 'insults/responses'
+  with open(insult_file, 'r') as fin:
+    for line in fin:
+      insults.append(line.strip())
+  with open(response_file, 'r') as fin:
+    for line in fin:
+      responses.append(line.strip())
+
 def scan(msg, usr):
   if '!roll' not in msg:
     return []
@@ -48,10 +30,8 @@ def scan(msg, usr):
   return rolls
 
 def snark(username, error):
-  
-  
   return choice(responses) % choice(
-    names + ([username] * (len(names) // 3))
+    insults + ([username] * (len(insults) // 4))
   ) + " (%s)" % error
   
 
@@ -64,4 +44,5 @@ def notify(rolls, msg):
     ])
   )
 
-
+if __name__ != __main__:
+  init_insults()
