@@ -435,8 +435,6 @@ def p_func_assign(t):
   t[0] = t[3]
   dice_vars[t[1]] = t[3]
 
-
-
 # Variadic constructions
 def p_param_list(t):
   '''param_list : LBRK elements RBRK
