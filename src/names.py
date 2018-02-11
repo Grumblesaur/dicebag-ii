@@ -10,7 +10,8 @@ defaults = {
 }
 
 sans_last = [
-  'altmer', 'argonian', 'bosmer', 'redguard'
+  'altmer', 'argonian', 'bosmer', 
+  'nord',   'redguard', 'khajiit'
 ]
 
 options = {
