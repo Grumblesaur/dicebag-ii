@@ -44,5 +44,5 @@ def notify(rolls, msg):
     ])
   )
 
-if __name__ != __main__:
+if __name__ != '__main__':
   init_insults()
