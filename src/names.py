@@ -50,6 +50,11 @@ def sanitize(namespec):
     namespec['last'] = False
     namespec['last starts with'] = ''
   
+  if not namespec['first starts with'].isalpha():
+    namespec['first starts with'] = ''
+  if not namespec['last stats with'].isalpha():
+    namespec['last starts with' = ''
+  
   return namespec
   
   
