@@ -9,22 +9,22 @@ defaults = {
   'subrace'           : ''
 }
 
-sans_last = [
+sans_last = (
   'altmer', 'argonian', 'bosmer', 
   'nord',   'redguard', 'khajiit'
-]
+)
 
 options = {
-  'race' : [
+  'race' : (
     'altmer',   'argonian', 'bosmer',
     'breton',   'dunmer',   'khajiit',
     'imperial', 'redguard', 'orsimer',
     'nord',
-  ], 'gender' : [
+  ), 'gender' : (
     'male', 'female'
-  ], 'subrace' : [
+  ), 'subrace' : (
     'cyrodilic', 'reachman', 'cyrodiilic' # correct for spelling on this one
-  ]
+  )
 }
 
 def sanitize(namespec):
