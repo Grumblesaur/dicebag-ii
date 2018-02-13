@@ -19,7 +19,7 @@ def scan(msg, usr):
     return []
   
   clause  = msg.split('!roll')
-  phrases = [token.strip().split(';')[0] for token in tokens if token]
+  phrases = [phrase.strip().split(';')[0] for phrase in clause if phrase]
   phrases   = [phrase.split('|') for phrase in phrases]
   rolls  = [ ]
   for phrase in phrases:
@@ -28,15 +28,15 @@ def scan(msg, usr):
     for expr in phrase:
       if i != p:
         try:
-          roll(token)
+          roll(expr)
         except ParseError as e:
           pass
       else:
         try:
-          rolls.append((token, [roll(token)]))
+          rolls.append((expr, [roll(expr)]))
         except ParseError as e:
-          print('bad roll:', token, e)
-          rolls.append((token, [snark(usr, e)]))
+          print('bad roll:', expr, e)
+          rolls.append((expr, [snark(usr, e)]))
       i += 1
   return rolls
 
