@@ -19,7 +19,7 @@ def scan(msg, usr):
     return []
   
   tokens = msg.casefold().split('!roll')
-  tokens = [token.strip() for token in tokens if token]
+  tokens = [token.strip().split(';')[0] for token in tokens if token]
   rolls  = [ ]
   for token in tokens:
     try:
