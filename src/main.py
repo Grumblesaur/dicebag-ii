@@ -12,12 +12,13 @@ from auth import *
 
 client = discord.Client(max_messages=128)
 current_time = 0
-last_time    = 0
+last_save    = 0
+last_backup  = 0
 
 @client.event
 async def on_message(msg):
   global current_time
-  global last_time
+  global last_save
   current_time = time.time()
   try:
     name = msg.author.nick
@@ -37,10 +38,15 @@ async def on_message(msg):
     await client.send_message(msg.channel, helptext)
   
   # save state every 5 minutes
-  if current_time - last_time > 300:
+  if current_time - last_save > 300:
     global_vars.save_state()
-    last_time = time.time()
-
+    last_save = time.time()
+  if current_time - last_backup > 1800:
+    with open('state/dice', 'r') as state:
+      with open('state/dice.bak', 'w') as bak:
+        bak.write(state.read())
+    last_backup = current_time
+  
 global_vars.load_state()
 client.run(bot_token)
   
