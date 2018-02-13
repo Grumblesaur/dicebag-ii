@@ -20,7 +20,7 @@ def scan(msg, usr):
   
   clause  = msg.split('!roll')
   phrases = [token.strip().split(';')[0] for token in tokens if token]
-  phrases   = [phrase.split('|') for phrase in phrases]
+  phrases   = [phrase.split('||') for phrase in phrases]
   rolls  = [ ]
   for phrase in phrases:
     i = 0;
