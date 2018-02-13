@@ -25,7 +25,7 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',
-  'TRUE',
+  'TRUE',   'GRAY' 
 ]
 
 reserved = {
@@ -35,11 +35,11 @@ reserved = {
   'else' : 'ELSE',   'len' : 'LEN',  'sel'   : 'SEL',
   'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
-  'false': 'FALSE',  'true': 'TRUE'
+  'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
+  'grey' : 'GRAY'
 }
 
 # Identifiers
-
 def t_IDENT(t):
   r'[a-zA-Z_]+'
   # Intercept reserved words before they get treated like identifiers
@@ -171,11 +171,14 @@ def p_expr_bool_t(t):
 
 def p_expr_color(t):
   '''expr : GREEN expr
-          | RED expr'''
+          | RED expr
+          | GRAY expr'''
   if t[1] == 'green':
     t[0] = "```diff\n+ %s```" % str(t[2])
-  else:
+  elif t[1] == 'red':
     t[0] = "```diff\n- %s```" % str(t[2])
+  else:
+    t[0] = "```%s```"% str(t[2])
   
 def p_expr_cast(t):
   '''expr : STR expr
