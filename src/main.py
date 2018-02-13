@@ -19,6 +19,7 @@ last_backup  = 0
 async def on_message(msg):
   global current_time
   global last_save
+  global last_backup
   current_time = time.time()
   try:
     name = msg.author.nick
