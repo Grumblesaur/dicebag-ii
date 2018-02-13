@@ -18,15 +18,26 @@ def scan(msg, usr):
   if '!roll' not in msg:
     return []
   
-  tokens = msg.casefold().split('!roll')
-  tokens = [token.strip().split(';')[0] for token in tokens if token]
+  clause  = msg.split('!roll')
+  phrases = [token.strip().split(';')[0] for token in tokens if token]
+  phrases   = [phrase.split('|') for phrase in phrases]
   rolls  = [ ]
-  for token in tokens:
-    try:
-      rolls.append((token, [roll(token)]))
-    except ParseError as e:
-      print('bad roll:', token, e)
-      rolls.append((token, [snark(usr, e)]))
+  for phrase in phrases:
+    i = 0;
+    p = len(phrase) - 1
+    for expr in phrase:
+      if i != p:
+        try:
+          roll(token)
+        except ParseError as e:
+          pass
+      else:
+        try:
+          rolls.append((token, [roll(token)]))
+        except ParseError as e:
+          print('bad roll:', token, e)
+          rolls.append((token, [snark(usr, e)]))
+      i += 1
   return rolls
 
 def snark(username, error):
