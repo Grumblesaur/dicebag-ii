@@ -43,9 +43,7 @@ async def on_message(msg):
     global_vars.save_state()
     last_save = time.time()
   if current_time - last_backup > 1800:
-    with open('state/dice', 'r') as state:
-      with open('state/dice.bak', 'w') as bak:
-        bak.write(state.read())
+    global_vars.backup_state()
     last_backup = current_time
   
 global_vars.load_state()

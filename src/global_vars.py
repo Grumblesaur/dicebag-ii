@@ -6,6 +6,14 @@ turn_tracker = {
   
 }
 
+def backup_state():
+  with open('state/dice', 'r') as _in:
+    with open('state/dice.bak', 'w') as out:
+      out.write(_in.read())
+  with open('state/turns', 'r') as _in:
+    with open('state/turns.bak', 'w') as out:
+      out.write(_in.read())
+
 def save_state():
   with open('state/dice', 'w') as out:
     out.write(repr(dice_vars))
