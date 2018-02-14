@@ -38,6 +38,10 @@ async def on_message(msg):
   if helptext:
     await client.send_message(msg.channel, helptext)
   
+  if msg.content.startswith('!save'):
+    global_vars.save_state()
+    global_vars.backup_state()
+  
   # save state every 5 minutes
   if current_time - last_save > 300:
     global_vars.save_state()
