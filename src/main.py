@@ -50,7 +50,10 @@ async def on_message(msg):
     global_vars.backup_state()
     last_backup = current_time
   
-global_vars.load_state()
-client.run(bot_token)
+if __name__ == '__main__':
+  global_vars.load_state()
+  print(global_vars.dice_vars)
+  print(global_vars.turn_tracker)
+  client.run(bot_token)
   
 
