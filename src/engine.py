@@ -168,7 +168,7 @@ precedence = (
 def p_expr_bool_t(t):
   '''expr : TRUE
           | FALSE'''
-  t[0] = t[1] == 'true'
+  t[0] = t[1].casefold() == 'true'
 
 def p_expr_color(t):
   '''expr : GREEN expr
