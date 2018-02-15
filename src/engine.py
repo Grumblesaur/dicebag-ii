@@ -540,7 +540,7 @@ def p_name(t):
   '''expr : NAME expr'''
   # placeholder code; will call tesnames code
   # when the functionality becomes available
-  t[0] = names.sanitize(name.downcase(t[1]))  
+  t[0] = names.sanitize(names.downcase(t[1]))  
 
 
 def p_error(t):
