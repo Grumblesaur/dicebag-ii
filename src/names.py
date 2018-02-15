@@ -32,6 +32,12 @@ options = {
   )
 }
 
+def normalize(namespec):
+  for key in defaults:
+    if key not in namespec:
+      namespec[key] = defaults[key]
+  return namspec
+
 def downcase(namespec):
   for key in namespec:
     namespec[key.casefold()] = namespec[key]
@@ -42,13 +48,6 @@ def downcase(namespec):
   return downcase
 
 def sanitize(namespec):
-  # ensure that all fields are supplied
-  for key in defaults:
-    if key == 'types':
-      continue
-    if key not in namespec:
-      namespec[key] = defaults[key]
-  
   for nametype in namespec['types']:
     if nametype not in categories:
       namespec['types'].pop(nametype)
@@ -78,4 +77,8 @@ def sanitize(namespec):
   return namespec
   
   
-   
+
+if __name__ == '__main__':
+  print(sanitize(downcase({ })))
+
+
