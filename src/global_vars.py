@@ -29,7 +29,7 @@ def load_state():
     dice_vars = eval(_in.read())
   with open('state/turns', 'r') as _in:
     turn_tracker = eval(_in.read())
-  
+  print(id(dice_vars))  
 
 
 

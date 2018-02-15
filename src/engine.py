@@ -538,7 +538,7 @@ def p_delete(t):
 
 def p_name(t):
   '''expr : NAME expr'''
-  t[0] = names.sanitize(t[1])  
+  t[0] = names.sanitize(t[2])  
 
 
 def p_error(t):

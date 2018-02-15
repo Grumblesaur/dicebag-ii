@@ -46,14 +46,15 @@ async def on_message(msg):
   if current_time - last_save > 300:
     global_vars.save_state()
     last_save = time.time()
+    print('globals saved')
   if current_time - last_backup > 1800:
     global_vars.backup_state()
     last_backup = current_time
+    print('globals backed up')
   
 if __name__ == '__main__':
   global_vars.load_state()
-  print(global_vars.dice_vars)
-  print(global_vars.turn_tracker)
+  print(id(global_vars.dice_vars))
   client.run(bot_token)
   
 

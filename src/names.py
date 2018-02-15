@@ -38,6 +38,7 @@ def sanitize(namespec):
   return correct(y)
 
 def normalize(namespec):
+  print(namespec)
   for key in defaults:
     if key not in namespec:
       namespec[key] = defaults[key]
@@ -81,4 +82,8 @@ def correct(namespec):
   
   return namespec
   
-  
+
+if __name__ == '__main__':
+  print(sanitize({}))
+
+ 
