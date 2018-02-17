@@ -8,8 +8,8 @@ supports several common scientific calculator functions.
 
 ## dicelang
 
-`dicelang` is the name of the language supported by the mathematical ex-
-pression engine. It stands for `Dumb Integrated Chatbot Expression Language
+`dicelang` is the name of the language supported by the mathematical
+expression engine. It stands for `Dumb Integrated Chatbot Expression Language
 And Number Generator`. Available operations are listed below in order of
 operator precedence, from tightest-binding to loosest-binding.
 
