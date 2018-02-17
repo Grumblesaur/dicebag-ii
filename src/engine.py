@@ -26,7 +26,7 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',
-  'TRUE',   'GRAY' 
+  'TRUE',   'GRAY',   'VARS' 
 ]
 
 reserved = {
@@ -37,7 +37,7 @@ reserved = {
   'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
   'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
-  'grey' : 'GRAY'
+  'grey' : 'GRAY',   'varnames' : 'VARS'
 }
 
 # Identifiers
@@ -195,7 +195,11 @@ def p_expr_cast(t):
       raise ParseError(e)
     t[0] = y if y == x else x 
       
-  
+
+def p_varnames(t):
+  '''expr : VARS'''
+  t[0] = ' '.join(global_vars.dice_vars.keys())  
+
 def p_expr_fact(t):
   '''expr : expr FACT'''
   t[0] = factorial(t[1])
