@@ -1,4 +1,4 @@
-from global_vars import turn_tracker as tracker
+import global_vars
 
 class TurnError(Exception):
   pass
@@ -83,49 +83,49 @@ def scan(msg):
     tokens = msg.split("!initiative")[1].split()
     tokens[1] = tokens[1].lower()
   except IndexError as e:
-    return [("active turn order trackers:", "no argument")] + list(
-      zip(list(tracker.keys()), [len(tracker[l] for l in tracker.keys())])
+    return [("active turn order global_vars.turn_trackers:", "no argument")] + list(
+      zip(list(global_vars.turn_tracker.keys()), [len(global_vars.turn_tracker[l] for l in global_vars.turn_tracker.keys())])
     )
   
   if tokens[0] == "create":
-    tracker[tokens[1]] = TurnOrder()
+    global_vars.turn_tracker[tokens[1]] = TurnOrder()
     return[("Created new turn order with name '%s'." % tokens[1], "create")]
   if tokens[0] == "add":
-    tracker[tokens[1]].add(tokens[2], int(tokens[3]))
+    global_vars.turn_tracker[tokens[1]].add(tokens[2], int(tokens[3]))
     return [("Added '%s' to the turn order '%s'." % tuple(
       tokens[2:0:-1]
     ), "add")]
   if tokens[0] == "remove":
-    tracker[tokens[1]].remove(tokens[2])
+    global_vars.turn_tracker[tokens[1]].remove(tokens[2])
     return [
       ("Removed '%s' from the turn order '%s'." % tokens[2:1:-1], "remove")
     ]
   if tokens[0] == "start":
-    tracker[tokens[1]].start()
+    global_vars.turn_tracker[tokens[1]].start()
     return [("Started turn order '%s'." % tokens[1], "start")]
   if tokens[0] == "next":
-    if not tracker[tokens[1]].active:
+    if not global_vars.turn_tracker[tokens[1]].active:
       raise TurnOrderError("Start the turn order to advance it.")
-    actor = tracker[tokens[1]].rotate()
+    actor = global_vars.turn_tracker[tokens[1]].rotate()
     genitive = '' if actor.endswith('s') else 's'
     return [("It's %s'%s turn." % (actor, genitive), "next")]
   if tokens[0] == "check":
-    if not tracker[tokens[1]].active:
+    if not global_vars.turn_tracker[tokens[1]].active:
       raise TurnOrderError("Start the turn order to check the next player.")
-    actor = tracker[tokens[1]].check()
+    actor = global_vars.turn_tracker[tokens[1]].check()
     return [("%s is on deck." % actor, "check")]
   if tokens[0] == "view":
-    current_round, actors = tracker[tokens[1]].view()
+    current_round, actors = global_vars.turn_tracker[tokens[1]].view()
     return [
       ("It's round %s in turn order '%s'."%(current_round,tokens[1]),"view")
     ] + actors
   if tokens[0] == "stop":
-    tracker[tokens[1]].stop()
+    global_vars.turn_tracker[tokens[1]].stop()
     return [("Stopped and reset turn order '%s'." % tokens[1], "stop")]
   if tokens[0] == "clear":
     try:
       e = None
-      tracker[tokens[1]].clear()
+      global_vars.turn_tracker[tokens[1]].clear()
     except TurnOrderError as e:
       pass
     finally:
