@@ -1,6 +1,6 @@
 from math import log, factorial
 from random import randint, choice
-from global_vars import dice_vars
+import global_vars
 import ply.yacc as yacc
 import sys
 import names
@@ -407,7 +407,7 @@ def p_expr_unit(t):
 
 def p_ident(t):
   'expr : IDENT'
-  t[0] = dice_vars[t[1]]
+  t[0] = global_vars.dice_vars[t[1]]
 
 
 # Function-related rules
@@ -422,7 +422,7 @@ def p_func_call(t):
 
 def p_named_func_call(t):
   '''expr : IDENT list_expr'''
-  args, algo = dice_vars[t[1]].split('->')
+  args, algo = global_vars.dice_vars[t[1]].split('->')
   args = [s.strip() for s in args.split(',')]
   algo = algo.strip().strip('"').strip("'")
   for index in range(len(t[2])):
@@ -437,7 +437,7 @@ def p_func_expr(t):
 def p_func_assign(t):
   '''expr : IDENT ASS func_expr'''
   t[0] = t[3]
-  dice_vars[t[1]] = t[3]
+  global_vars.dice_vars[t[1]] = t[3]
 
 # Variadic constructions
 def p_param_list(t):
@@ -483,7 +483,7 @@ def p_index_expr(t):
   try:
     t[0] = t[1][t[3]]
   except Exception:
-    t[0] = dice_vars[t[1]][t[3]]
+    t[0] = global_vars.dice_vars[t[1]][t[3]]
 
 def p_dictexpr(t):
   '''dictexpr : LBRC pairs RBRC
@@ -513,16 +513,16 @@ def p_assign_expr(t):
   '''
   if len(t) == 4:
     t[0] = t[3]
-    dice_vars[t[1]] = t[3]
+    global_vars.dice_vars[t[1]] = t[3]
   else:
     t[0] = t[6]
-    dice_vars[t[1]][t[3]] = t[6]
+    global_vars.dice_vars[t[1]][t[3]] = t[6]
 
 
 def p_insert_expr(t):
   '''expr : IDENT INS expr COM expr'''
   t[0] = t[5]
-  dice_vars[t[1]][t[3]] = t[5]
+  global_vars.dice_vars[t[1]][t[3]] = t[5]
 
 
 def p_delete(t):
@@ -530,11 +530,11 @@ def p_delete(t):
           | DEL IDENT LBRC expr RBRC
   '''
   if len(t) == 3:
-    t[0] = dice_vars[t[2]]
-    del dice_vars[t[2]]
+    t[0] = global_vars.dice_vars[t[2]]
+    del global_vars.dice_vars[t[2]]
   else:
-    t[0] = (dice_vars[t[2]])[t[4]]
-    del (dice_vars[t[2]])[t[4]]
+    t[0] = (global_vars.dice_vars[t[2]])[t[4]]
+    del (global_vars.dice_vars[t[2]])[t[4]]
 
 def p_name(t):
   '''expr : NAME expr'''
@@ -550,8 +550,8 @@ parser = yacc.yacc(optimize=1, debug=True)
 
 def roll(expr):
   try:
-    dice_vars['_'] = parser.parse(expr)
-    return dice_vars['_']
+    global_vars.dice_vars['_'] = parser.parse(expr)
+    return global_vars.dice_vars['_']
   except Exception as e:
     raise ParseError(e)
 
