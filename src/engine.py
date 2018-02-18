@@ -198,7 +198,7 @@ def p_expr_cast(t):
 
 def p_varnames(t):
   '''expr : VARS'''
-  t[0] = '`%s`' % '  '.join(sorted(global_vars.dice_vars.keys()))
+  t[0] = '```%s```' % '  '.join(sorted(global_vars.dice_vars.keys()))
 
 def p_expr_fact(t):
   '''expr : expr FACT'''
