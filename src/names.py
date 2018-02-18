@@ -34,8 +34,7 @@ options = {
 
 def sanitize(namespec):
   x = normalize(namespec)
-  y = downcase(x)
-  return correct(y)
+  return downcase(x)
 
 def normalize(namespec):
   print(namespec)
@@ -52,34 +51,6 @@ def downcase(namespec):
   for key in string_fields:
     namespec[key] = namespec[key].casefold()
   namespec['types'] = [t.casefold() for t in namespec['types']]
-  return namespec
-
-def correct(namespec):
-  for nametype in namespec['types']:
-    if nametype not in categories:
-      namespec['types'].pop(nametype)
-  
-  for key in options:
-    if namespec[key] not in options[key]:
-      namespec[key] = ''
-  # correct for a possible common spelling mistake
-  if namespec['subrace'] == 'cyrodiilic':
-    namespec['subrace'] = 'cyrodilic'
-  
-  if namespec['subrace'] == 'cyrodilic' and namespec['race'] != 'argonian':
-    namespec['subrace'] = ''
-  elif namespec['subrace'] == 'reachman' and namespec['race'] != 'breton':
-    namspec['subrace'] = ''
-  
-  if namespec['race'] in sans_last:
-    namespec['last'] = False
-    namespec['last starts with'] = ''
-  
-  if not namespec['first starts with'].isalpha():
-    namespec['first starts with'] = ''
-  if not namespec['last starts with'].isalpha():
-    namespec['last starts with'] = ''
-  
   return namespec
   
 
