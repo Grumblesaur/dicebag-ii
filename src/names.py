@@ -4,8 +4,8 @@ defaults = {
   'types'             : ['first'],
   'first starts with' : '',
   'last starts with'  : '',
-  'affix'             : False,
-  'subrace'           : ''
+  'subrace'           : '',
+  'syllables'         : 0
 }
 
 string_fields = (
