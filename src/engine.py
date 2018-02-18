@@ -4,6 +4,7 @@ import global_vars
 import ply.yacc as yacc
 import sys
 import names
+import gen
 
 class ParseError(Exception):
   pass
@@ -542,7 +543,7 @@ def p_delete(t):
 
 def p_name(t):
   '''expr : NAME expr'''
-  t[0] = names.sanitize(t[2])  
+  t[0] = gen.generateName(names.sanitize(t[2])) 
 
 
 def p_error(t):
