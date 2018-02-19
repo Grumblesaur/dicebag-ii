@@ -27,7 +27,7 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',
-  'TRUE',   'GRAY',   'VARS' 
+  'TRUE',   'GRAY',   'VARS',  'EVAL' 
 ]
 
 reserved = {
@@ -38,7 +38,7 @@ reserved = {
   'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
   'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
-  'grey' : 'GRAY',   'varnames' : 'VARS'
+  'grey' : 'GRAY',   'eval' : 'EVAL','varnames' : 'VARS',
 }
 
 # Identifiers
@@ -162,6 +162,7 @@ precedence = (
   ('right', 'LOW', 'HIGH'),
   ('left', 'LBRC', 'RBRC'),
   ('left',  'DIE'),
+  ('right', 'EVAL'),
   ('left', 'REP'),
 )
 
@@ -196,6 +197,7 @@ def p_expr_cast(t):
       raise ParseError(e)
     t[0] = y if y == x else x 
       
+
 
 def p_varnames(t):
   '''expr : VARS'''
@@ -344,6 +346,10 @@ def p_expr_sign(t):
 def p_expr_meta_rep(t):
   'expr : expr REP expr'
   t[0] = [parser.parse(str(t[1])) for x in range(t[3])]
+
+def p_expr_meta_eval(t):
+  '''expr : EVAL expr'''
+  t[0] = parser.parse(t[2])
 
 def p_expr_sum(t):
   'expr : SUM expr'
