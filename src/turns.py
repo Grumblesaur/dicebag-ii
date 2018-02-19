@@ -83,8 +83,16 @@ def scan(msg):
     tokens = msg.split("!initiative")[1].split()
     tokens[1] = tokens[1].lower()
   except IndexError as e:
-    return [("active turn order global_vars.turn_trackers:", "no argument")] + list(
-      zip(list(global_vars.turn_tracker.keys()), [len(global_vars.turn_tracker[l] for l in global_vars.turn_tracker.keys())])
+    return [("active turn order global_vars.turn_tracker:", "no argument")] + (
+      list(
+        zip(
+          list(global_vars.turn_tracker.keys()), [
+            len(
+              global_vars.turn_tracker[l]
+            ) for l in global_vars.turn_tracker.keys()
+          ]
+        )
+      )
     )
   
   if tokens[0] == "create":
