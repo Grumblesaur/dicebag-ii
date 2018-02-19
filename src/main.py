@@ -33,7 +33,7 @@ async def on_message(msg):
     await client.send_message(msg.channel, dice.notify(rolls, msg))
 
   if orders:
-    await client.send_message(msg.channel, turns.notify(rolls))
+    await client.send_message(msg.channel, turns.notify(orders))
   
   if helptext:
     await client.send_message(msg.channel, helptext)

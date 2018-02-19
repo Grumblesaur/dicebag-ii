@@ -6,6 +6,8 @@ turn_tracker = {
   
 }
 
+import turns
+
 def backup_state():
   with open('state/dice', 'r') as _in:
     with open('state/dice.bak', 'w') as out:
@@ -27,10 +29,12 @@ def load_state():
   global turn_tracker
   with open('state/dice', 'r') as _in:
     dice_vars = eval(_in.read())
-  with open('state/turns', 'r') as _in:
-    turn_tracker = eval(_in.read())
-  print(id(dice_vars))  
-
-
-
+  try:
+    with open('state/turns', 'r') as _in:
+      turn_tracker = eval(_in.read())
+      for order in turn_tracker:
+        turn_tracker[order] = turns.TurnOrder(turn_tracker[order])
+  except TypeError as e:
+    print(e)
+    turn_tracker = { }
 

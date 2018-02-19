@@ -4,18 +4,39 @@ class TurnError(Exception):
   pass
 
 class TurnOrder(object):
-  def __init__(self):
-    self.order        = []
-    self.new_waiting  = []
-    self.dead_waiting = []
-
-    self.turns        = 0
-    self.rounds       = 1
-    
-    self.active       = False
-    self.new          = False
-    self.dead         = False
-
+  def __repr__(self):
+    return '"%s"' % '::::'.join(map(repr, [
+      self.order,
+      self.new_waiting,
+      self.dead_waiting,
+      self.turns,
+      self.rounds,
+      self.active,
+      self.new,
+      self.dead
+    ]))
+  
+  def __init__(self, serialized=None):
+    if not serialized:
+      self.order        = []
+      self.new_waiting  = []
+      self.dead_waiting = []
+      self.turns        = 0
+      self.rounds       = 1
+      self.active       = False
+      self.new          = False
+      self.dead         = False
+    else:
+      initialized = serialized.split('::::')
+      self.order = eval(initialized[0])
+      self.new_waiting = eval(initialized[1])
+      self.dead_waiting = eval(initialized[2])
+      self.turns = int(eval(initialized[3]))
+      self.rounds = int(eval(initialized[4]))
+      self.active = bool(eval(initialized[5]))
+      self.new = bool(eval(initialized[6]))
+      self.dead = bool(eval(initialized[7]))
+  
   def __len__(self):
     return len(self.order)
 
@@ -97,6 +118,7 @@ def scan(msg):
   
   if tokens[0] == "create":
     global_vars.turn_tracker[tokens[1]] = TurnOrder()
+    print('create')
     return[("Created new turn order with name '%s'." % tokens[1], "create")]
   if tokens[0] == "add":
     global_vars.turn_tracker[tokens[1]].add(tokens[2], int(tokens[3]))
@@ -106,7 +128,7 @@ def scan(msg):
   if tokens[0] == "remove":
     global_vars.turn_tracker[tokens[1]].remove(tokens[2])
     return [
-      ("Removed '%s' from the turn order '%s'." % tokens[2:1:-1], "remove")
+      ("Removed '%s' from the turn order '%s'." % tokens[2:0:-1], "remove")
     ]
   if tokens[0] == "start":
     global_vars.turn_tracker[tokens[1]].start()
