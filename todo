@@ -1,0 +1,35 @@
+the to-do list:
+  * Improve the documentation to explain types. Rename `macro` and `structure`
+    to `string` and `dictionary`.
+  * Explain type conversions, certain dicelang idioms, and the repetition
+    operator with better terminology.
+  * Enumerate the commands for the turns module.
+  * Refactor/reorganize engine.py to make the parser functions more uniform.
+  * Refactor turns.py to make the function `scan` more readable.
+
+the might-do list:
+  * Add an `eval` operator which functions identically to `"some expr" ^ 1`
+    for ease of typing and storing long commands in variables.
+  * Remove function macros?
+  * Make arbitrarily-nested dictionaries valid l-values
+  * Make arbitrarily-nested lists valid l-values
+  * Make built-in variable `_` show the last 10 values, newest to oldest,
+    using the list as a FIFO internally (this might cause a problem if people
+    try to assign to it, which is currently legal and possible.
+  * Introduce dicebag modules for character generation, which store the
+    character's name and statistics in a dictionary in the interpreter, but
+    which doesn't require multiple `!roll` clauses.
+  * Create TESname-style templates for Mbembli, Sceyrdruth, Kvenscaska, Saghia
+    and other conlangs.
+
+the probably-won't-do list:
+  * Have dicelang evaluated and transformed into an abstract syntax tree to
+    allow for delayed evaluation, which in turn would allow for recursion or
+    looping and less dumb function calls. (This could be a potentially very
+    bad idea if the code never terminates.)
+
+the almost-certainly-won't-do-unless-dicebag-becomes-really-popular list:
+  * Make initiative trackers and interpreter variables server-private to
+    prevent overwrites by users in disparate servers.
+  
+
