@@ -12,26 +12,6 @@ string_fields = (
   'race', 'gender', 'first starts with', 'last starts with', 'subrace'
 )
 
-categories = ('first', 'last')
-
-sans_last = (
-  'altmer', 'argonian', 'bosmer', 
-  'nord',   'redguard', 'khajiit'
-)
-
-options = {
-  'race' : (
-    'altmer',   'argonian', 'bosmer',
-    'breton',   'dunmer',   'khajiit',
-    'imperial', 'redguard', 'orsimer',
-    'nord',
-  ), 'gender' : (
-    'male', 'female'
-  ), 'subrace' : (
-    'cyrodilic', 'reachman', 'cyrodiilic' # correct for spelling on this one
-  )
-}
-
 def sanitize(namespec):
   x = normalize(namespec)
   return downcase(x)
