@@ -43,7 +43,6 @@ operator precedence, from tightest-binding to loosest-binding.
   In the case of both the l and h operators, when their `b` argument is
   equal to 1, they return their result as a scalar (integer or real).
   
-  
   #  : The sum operator. Usage: #a, where `a` is an expression that resolves
        to a list. This operation sums all the values in the list and returns
        a scalar (integer or real).
@@ -64,7 +63,6 @@ operator precedence, from tightest-binding to loosest-binding.
        resolves to a list. This operation returns a list of all of the odd
        numbers in `a`.
   
-  
   ** : The exponentiation operator. Usage: a ** b, where `a` and `b` are 
        both expressions that resolve to a scalar (integer or real). This
        operation returns `a` to the power of `b` as a scalar result.
@@ -73,22 +71,18 @@ operator precedence, from tightest-binding to loosest-binding.
        expressions that resolve to a scalar (integer or real). This
        operation returns log base `a` of `b` as a scalar result.
   
-  
   c  : The binomial coefficient operator. Usage a c b, where `a` and `b` are
        both expressions that resolve to an integer and `a` > `b`. This
        operation returns the factorial of `a` divided by (the factorial of
        `b` times the factorial of (`a` minus `b`)) as an integer.
   
-  
   !  : The factorial operator. Usage: a!, where `a` is an expression that
        resolves to an integer. This operation returns the factorial of `a`
        as an integer.
   
-  
   %% : The root operator. Usage: a %% b, where `a` and `b` are both
        expressions that resolve to a scalar. This operation returns the
        `a`th root of `b` as a scalar.
-  
   
   +  : The unary plus operator. Usage: +a, where `a` is an expression that
        resolves to a scalar. This operation returns the absolute value of
@@ -97,7 +91,6 @@ operator precedence, from tightest-binding to loosest-binding.
   -  : The unary minus operator. Usage: -a, where `a` is an expression that
        resolves to a scalar. This operation returns `a` with an inverted
        sign as a scalar.
-  
   
   *  : The multiplication operator. Usage: a * b, where `a` and `b` are both
        expressions that resolve to a scalar. This operation returns the
@@ -115,7 +108,6 @@ operator precedence, from tightest-binding to loosest-binding.
        both expressions that resolve to integers. This operation returns
        the remainder of `a` // `b` as an integer.
   
-  
   +  : The binary plus operator. Usage: a + b, where `a` and `b` are both
        expressions that resolve to any type, as long as both are of the
        same type. For macro strings or lists, this operation returns the
@@ -125,8 +117,6 @@ operator precedence, from tightest-binding to loosest-binding.
   -  : The binary minus operator. Usage: a - b, where `a` and `b` are both
        expressions that resolve to scalars. This operation returns the
        difference between `a` and `b`.
-  
-  
   
   <  : The less-than operator. Usage: a < b, where `a` and `b` are both
        expressions that resolve to the same type. This operation returns
@@ -160,6 +150,12 @@ operator precedence, from tightest-binding to loosest-binding.
        expression of any type. This operation attempts to return a floating
        point number, will prefer an integer if the float has no fractional
        part, or will raise an exception if neither representation is possible.
+ 
+ name: The name generation operator. Usage: name a, where `a` is an
+       expression of type structure. This operation will use whatever name
+       generation arguments are contained within to generate a name, as
+       according to the algorithm in @jemay's TESnames repository:
+       https://github.com/jemay/TESnames 
   
   not: The boolean complement operator. Usage: not a, where `a` is an
        expression of any type. This operation returns 1 when `a` is a
@@ -211,7 +207,7 @@ green : Exactly the same as `red`, but green.
 
 
         It is also possible to treat variables as structures with other
-        values contained within. To create an empty structure, use this syntax:
+        values contained within. Use this syntax to create an empty structure:
         
           identifier_name = { }
         
@@ -262,9 +258,6 @@ green : Exactly the same as `red`, but green.
         subverts the necessity for an abstract syntax tree, which means
         functions can be stored in plaintext, but this also means that
         nested function calls and recursion are impossible.
-        
-        
-        
         
 ```
 
