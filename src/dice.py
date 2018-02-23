@@ -20,24 +20,13 @@ def scan(msg, usr):
   
   clause  = msg.split('!roll')
   phrases = [phrase.strip().split('::')[0] for phrase in clause if phrase]
-  #phrases   = [phrase.split('||') for phrase in phrases]
   rolls  = [ ]
   for phrase in phrases:
-    i = 0;
-    p = len(phrase) - 1
-    for expr in phrase:
-      if i != p:
-        try:
-          roll(expr)
-        except ParseError as e:
-          pass
-      else:
-        try:
-          rolls.append((expr, [roll(expr)]))
-        except ParseError as e:
-          print('bad roll:', expr, e)
-          rolls.append((expr, [snark(usr, e)]))
-      i += 1
+    try:
+      rolls.append((expr, [roll(expr)]))
+    except ParseError as e:
+      print('bad roll:', expr, e)
+      rolls.append((expr, [snark(usr,e)]))
   return rolls
 
 def snark(username, error):
