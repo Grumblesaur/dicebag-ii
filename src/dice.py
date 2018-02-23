@@ -19,8 +19,8 @@ def scan(msg, usr):
     return []
   
   clause  = msg.split('!roll')
-  phrases = [phrase.strip().split(';')[0] for phrase in clause if phrase]
-  phrases   = [phrase.split('||') for phrase in phrases]
+  phrases = [phrase.strip().split('::')[0] for phrase in clause if phrase]
+  #phrases   = [phrase.split('||') for phrase in phrases]
   rolls  = [ ]
   for phrase in phrases:
     i = 0;

@@ -27,7 +27,9 @@ tokens = [ # token declarations
   'ELSE',   'AND',    'OR',    'NOT',
   'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',
-  'TRUE',   'GRAY',   'VARS',  'EVAL' 
+  'TRUE',   'GRAY',   'VARS',  'EVAL',
+  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND',
+  'BIT_OR' 
 ]
 
 reserved = {
@@ -39,6 +41,7 @@ reserved = {
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
   'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
   'grey' : 'GRAY',   'eval' : 'EVAL','varnames' : 'VARS',
+  'evens': 'EVEN',   'odds' : 'ODD', 'avg'   : 'AVG'
 }
 
 # Identifiers
@@ -67,6 +70,7 @@ def t_MACRO(t):
 
 
 # Grouping symbols and miscellanea
+t_SEP  = r';'
 t_REP  = r'\^'
 t_LPAR = r'\('
 t_RPAR = r'\)'
@@ -76,11 +80,10 @@ t_LBRC = r'{'
 t_RBRC = r'}'
 
 # Vector unaries
-t_SUM  = r'\#'
-t_AVG  = r'@'
-t_SAMM = r'\?'
-t_EVEN = r':'
-t_ODD  = r'&'
+t_SUM     = r'\#'
+t_AVG     = r'@'
+t_SAMM    = r'\?'
+t_EVEN    = r':'
 
 # Arithmetic and algebraic operators
 t_EXP  = r'\*\*'
@@ -104,6 +107,10 @@ t_ADD  = r'\+'
 t_VADD = r'<\+>'
 t_SUB  = r'-'
 t_VSUB = r'<->'
+t_BIT_AND = r'&'
+t_BIT_OR  = r'\|'
+t_LSHIFT  = r'<<'
+t_RSHIFT  = r'>>'
 
 # Comparison operators
 t_EQ   = r'=='
@@ -149,7 +156,10 @@ precedence = (
   ('left',  'OR'),
   ('left',  'AND'),
   ('right', 'NOT', 'STR', 'NUM', 'NAME'),
+  ('left',  'BIT_OR'),
+  ('left',  'BIT_AND'),
   ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
+  ('left',  'LSHIFT', 'RSHIFT'),
   ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
   ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
   ('right', 'ABS', 'NEG'),
@@ -167,6 +177,19 @@ precedence = (
 )
 
 # Expressions
+def p_stmt_list_t(t):
+  '''stmt_list : stmt
+               | stmt_list SEP stmt'''
+  if len(t) == 2:
+    t[0] = t[1]
+  else:
+    t[0] = t[3]
+  global_vars.dice_vars['_'] = t[0] 
+
+def p_stmt(t):
+  '''stmt : expr'''
+  t[0] = t[1]
+
 def p_expr_bool_t(t):
   '''expr : TRUE
           | FALSE'''
@@ -261,6 +284,10 @@ def p_expr_vbinop(t):
 
 def p_expr_binop(t):
   '''expr : expr CAT  expr
+          | expr BIT_AND expr
+          | expr BIT_OR expr
+          | expr LSHIFT expr
+          | expr RSHIFT expr
           | expr ADD  expr
           | expr SUB  expr
           | expr MUL  expr
@@ -274,6 +301,14 @@ def p_expr_binop(t):
   '''
   if   t[2] == '$':
     t[0] = int(''.join(map(lambda x: str(int(x)), (t[1], t[3]))))
+  elif t[2] == '&':
+    t[0] = t[1] & t[3]
+  elif t[2] == '|':
+    t[0] = t[1] | t[3]
+  elif t[2] == '<<':
+    t[0] = t[1] << t[3]
+  elif t[2] == '>>':
+    t[0] = t[1] >> t[3]
   elif t[2] == '+':
     t[0] = t[1] + t[3]
   elif t[2] == '-':

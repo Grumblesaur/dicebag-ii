@@ -55,11 +55,11 @@ operator precedence, from tightest-binding to loosest-binding.
        resolves to a list. This operation returns a list of `a`'s total,
        average, maximum, and minimum values, in that order.
   
-  :  : The even filter operator. Usage: :a, where `a` is an expression that
+evens: The even filter operator. Usage: :a, where `a` is an expression that
        resolves to a list. This operation returns a list of all of the even
        numbers in `a`.
   
-  &  : The odd filter operator. Usage: &a, where `a` is an expression that
+odds : The odd filter operator. Usage: &a, where `a` is an expression that
        resolves to a list. This operation returns a list of all of the odd
        numbers in `a`.
   
@@ -118,6 +118,14 @@ operator precedence, from tightest-binding to loosest-binding.
        expressions that resolve to scalars. This operation returns the
        difference between `a` and `b`.
   
+  << : The bitwise left shift operator. Usage: a << b, where `a` and `b` are
+       both integers. This operation returns the value of `a` shifted left by
+       `b` bits.
+  
+  >> : The bitwise right shift operator. Usage: a >> b, where `a` and `b` are
+       both integers. This operation returns the value of `a` shifted right
+       by `b` bits.
+   
   <  : The less-than operator. Usage: a < b, where `a` and `b` are both
        expressions that resolve to the same type. This operation returns
        1 if `a` is less than `b`, otherwise, 0.
@@ -141,6 +149,11 @@ operator precedence, from tightest-binding to loosest-binding.
   <= : The less-equal operator. Usage: a <= b, where `a` and `b` are both
        expressions of the same type. This operation returns 1 if `a` is at
        least as small as `b`, otherwise 0.
+  
+  &  : The bitwise and operator. Look, if you don't know how this one works,
+       you probably don't need it.
+  
+  |  : The bitwise or operator. Same as above, but more `or` than `and`.
   
   str: The string conversion operator. Usage: str a, where `a` is an
        expression of any type. This operation returns the string
