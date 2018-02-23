@@ -23,10 +23,10 @@ def scan(msg, usr):
   rolls  = [ ]
   for phrase in phrases:
     try:
-      rolls.append((expr, [roll(expr)]))
+      rolls.append((phrase, [roll(phrase)]))
     except ParseError as e:
-      print('bad roll:', expr, e)
-      rolls.append((expr, [snark(usr,e)]))
+      print('bad roll:', phrase, e)
+      rolls.append((phrase, [snark(usr,e)]))
   return rolls
 
 def snark(username, error):
