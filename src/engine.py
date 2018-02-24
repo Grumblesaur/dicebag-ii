@@ -69,6 +69,7 @@ t_LBRK = r'\['
 t_RBRK = r'\]'
 t_LBRC = r'{'
 t_RBRC = r'}'
+t_COLON= r':'
 
 # Vector unaries
 t_SUM     = r'\#'
@@ -547,8 +548,8 @@ def p_dictexpr(t):
     t[0] = { }
 
 def p_pairs(t):
-  '''pairs : expr EVEN expr COM pairs
-           | expr EVEN expr
+  '''pairs : expr COLON expr COM pairs
+           | expr COLON expr
   '''
   if len(t) == 6:
     t[0] = [[t[1], t[3]]] + t[5]
