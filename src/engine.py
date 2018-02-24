@@ -138,6 +138,7 @@ lexer = lex.lex()
 
 # parsing rules
 precedence = (
+  ('right',  'EVAL'),
   ('right',  'RED', 'GREEN'),
   ('right',  'IF'),
   ('right',  'ASS'),
@@ -165,7 +166,6 @@ precedence = (
   ('right', 'LOW', 'HIGH'),
   ('left', 'LBRC', 'RBRC'),
   ('left',  'DIE'),
-  ('right', 'EVAL'),
   ('left', 'REP'),
 )
 
