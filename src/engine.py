@@ -19,20 +19,20 @@ tokens = [ # token declarations
   'YIELD',  'GT',     'LT',    'EQ',      'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',     'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',   'TRUE',   'GRAY',   'VARS',  'EVAL',
-  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'BY' 
+  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'BY', 
 ]
 
 reserved = {
-  'd'    : 'DIE',    'h'   : 'HIGH', 'l'     : 'LOW',
-  'c'    : 'CHOOSE', 'or'  : 'OR',   'and'   : 'AND',
-  'not'  : 'NOT',    'del' : 'DEL',  'if'    : 'IF',
-  'else' : 'ELSE',   'len' : 'LEN',  'sel'   : 'SEL',
-  'in'   : 'IN',     'red' : 'RED',  'green' : 'GREEN',
-  'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
-  'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
-  'grey' : 'GRAY',   'eval' : 'EVAL','varnames' : 'VARS',
-  'evens': 'EVEN',   'odds' : 'ODD', 'avg'   : 'AVG',
-  'to'   : 'TO',     'by'   : 'BY'
+  'd'    : 'DIE',    'h'    : 'HIGH', 'l'        : 'LOW',
+  'c'    : 'CHOOSE', 'or'   : 'OR',   'and'      : 'AND',
+  'not'  : 'NOT',    'del'  : 'DEL',  'if'       : 'IF',
+  'else' : 'ELSE',   'len'  : 'LEN',  'sel'      : 'SEL',
+  'in'   : 'IN',     'red'  : 'RED',  'green'    : 'GREEN',
+  'str'  : 'STR',    'num'  : 'NUM',  'name'     : 'NAME',
+  'false': 'FALSE',  'true' : 'TRUE', 'gray'     : 'GRAY',
+  'grey' : 'GRAY',   'eval' : 'EVAL',
+  'evens': 'EVEN',   'odds' : 'ODD',  'avg'      : 'AVG',
+  'to'   : 'TO',     'by'   : 'BY',   'vars' : 'VARS',
 }
 
 # Identifiers
@@ -74,7 +74,6 @@ t_RBRC = r'}'
 t_SUM     = r'\#'
 t_AVG     = r'@'
 t_SAMM    = r'\?'
-t_EVEN    = r':'
 
 # Arithmetic and algebraic operators
 t_EXP  = r'\*\*'
@@ -143,6 +142,7 @@ precedence = (
   ('right',  'ASS'),
   ('nonassoc', 'INS'),
   ('nonassoc', 'TO'),
+  ('nonassoc', 'BY'),
   ('left',  'CAT', 'VCAT'),
   ('nonassoc', 'IN'),
   ('left',  'OR'),
@@ -198,14 +198,21 @@ def p_expr_color(t):
   else:
     t[0] = "```%s```"% str(t[2])
 
-def p_expr_list_range(t):
-  '''expr : expr TO expr
-          | expr TO expr BY expr'''
-  by = abs(t[5]) if len(t) == 6 else 1
+def p_expr_range_stepped(t):
+  '''expr : expr TO expr BY expr'''
+  step = t[5]
   if t[1] < t[3]:
-    t[0] = [x for x in range(t[1], t[3], by)]
+    t[0] = [x for x in range(t[1], t[3], step)]
   else:
-    t[0] = [x for x in range(t[1], t[3], -by)]
+    t[0] = [x for x in range(t[1], t[3], -step)]
+
+def p_expr_range(t):
+  '''expr : expr TO expr'''
+  if t[1] < t[3]:
+    t[0] = [x for x in range(t[1], t[3])]
+  else:
+    t[0] = [x for x in range(t[1], t[3], -1)]
+
 
 
 def p_expr_cast(t):
@@ -224,7 +231,7 @@ def p_expr_cast(t):
       
 
 
-def p_varnames(t):
+def p_vars(t):
   '''expr : VARS'''
   t[0] = '```%s```' % '  '.join(sorted(global_vars.dice_vars.keys()))
 
@@ -430,23 +437,20 @@ def p_expr_tail(t):
   
   t[0] = t[0][0] if len(t[0]) == 1 else t[0]
 
+
 def p_conditional(t):
   '''expr : expr IF expr ELSE expr
-          | expr IF ELSE expr
-  '''
+          | expr IF ELSE expr'''
   if len(t) == 6:
     t[0] = t[1] if t[3] else t[5]
   else:
     t[0] = t[1] if t[1] else t[4]
 
-
-
 # Concrete values
 def p_expr_unit(t):
   '''expr : LPAR expr RPAR
           | NUMBER
-          | MACRO
-  '''
+          | MACRO'''
   if len(t) == 4:
     t[0] = t[2]
   else:
@@ -454,7 +458,7 @@ def p_expr_unit(t):
 
 
 def p_ident(t):
-  'expr : IDENT'
+  '''expr : IDENT'''
   t[0] = global_vars.dice_vars[t[1]]
 
 
