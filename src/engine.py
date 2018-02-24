@@ -19,7 +19,7 @@ tokens = [ # token declarations
   'YIELD',  'GT',     'LT',    'EQ',      'GEQ',    'LEQ',    'NEQ',   'IF',
   'ELSE',   'AND',    'OR',    'NOT',     'LEN',    'SEL',    'RED',   'GREEN',
   'STR',    'NUM',    'NAME',  'FALSE',   'TRUE',   'GRAY',   'VARS',  'EVAL',
-  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'BY', 
+  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'COLON', 'BY', 
 ]
 
 reserved = {
