@@ -29,7 +29,7 @@ tokens = [ # token declarations
   'STR',    'NUM',    'NAME',  'FALSE',
   'TRUE',   'GRAY',   'VARS',  'EVAL',
   'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND',
-  'BIT_OR' 
+  'BIT_OR', 'TO' 
 ]
 
 reserved = {
@@ -41,7 +41,8 @@ reserved = {
   'str'  : 'STR',    'num' : 'NUM',  'name'  : 'NAME',
   'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
   'grey' : 'GRAY',   'eval' : 'EVAL','varnames' : 'VARS',
-  'evens': 'EVEN',   'odds' : 'ODD', 'avg'   : 'AVG'
+  'evens': 'EVEN',   'odds' : 'ODD', 'avg'   : 'AVG',
+  'to'   : 'TO'
 }
 
 # Identifiers
@@ -151,6 +152,7 @@ precedence = (
   ('right',  'IF'),
   ('right',  'ASS'),
   ('nonassoc', 'INS'),
+  ('nonassoc', 'TO'),
   ('left',  'CAT', 'VCAT'),
   ('nonassoc', 'IN'),
   ('left',  'OR'),
@@ -205,7 +207,12 @@ def p_expr_color(t):
     t[0] = "```diff\n- %s```" % str(t[2])
   else:
     t[0] = "```%s```"% str(t[2])
-  
+
+def p_expr_list_range(t):
+  '''expr : expr TO expr'''
+  t[0] = [x for x in range(t[1], t[3]+1)]
+
+
 def p_expr_cast(t):
   '''expr : STR expr
           | NUM expr'''
