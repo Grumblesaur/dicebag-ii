@@ -10,26 +10,16 @@ class ParseError(Exception):
   pass
 
 tokens = [ # token declarations
-  'MUL',    'DIV',    'LOG',   'EXP',
-  'LPAR',   'RPAR',   'MOD',   'LBRK',
-  'RBRK',   'ADD',    'SUB',   'SUM',
-  'AVG',    'COM',    'SAMM',  'FDIV',
-  'REP',    'EVEN',   'ODD',   'ASS',
-  'NUMBER', 'MACRO',  'IDENT', 'DEL',
-  'ROOT',   'VADD',   'VSUB',  'VMUL',
-  'VDIV',   'VFDIV',  'VEXP',  'VLOG',
-  'VCAT',   'VMOD',   'VROOT', 'LBRC',
-  'RBRC',   'INS',    'CAT',   'IN',
-  'DIE',    'HIGH',   'LOW',   'FACT',
-  'VFACT',  'CHOOSE', 'VCHOOSE',
-  'YIELD',  'GT',     'LT',    'EQ',
-  'GEQ',    'LEQ',    'NEQ',   'IF',
-  'ELSE',   'AND',    'OR',    'NOT',
-  'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM',    'NAME',  'FALSE',
-  'TRUE',   'GRAY',   'VARS',  'EVAL',
-  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND',
-  'BIT_OR', 'TO' 
+  'MUL',    'DIV',    'LOG',   'EXP',     'LPAR',   'RPAR',   'MOD',   'LBRK',
+  'RBRK',   'ADD',    'SUB',   'SUM',     'AVG',    'COM',    'SAMM',  'FDIV',
+  'REP',    'EVEN',   'ODD',   'ASS',     'NUMBER', 'MACRO',  'IDENT', 'DEL',
+  'ROOT',   'VADD',   'VSUB',  'VMUL',    'VDIV',   'VFDIV',  'VEXP',  'VLOG',
+  'VCAT',   'VMOD',   'VROOT', 'LBRC',    'RBRC',   'INS',    'CAT',   'IN',
+  'DIE',    'HIGH',   'LOW',   'FACT',    'VFACT',  'CHOOSE', 'VCHOOSE',
+  'YIELD',  'GT',     'LT',    'EQ',      'GEQ',    'LEQ',    'NEQ',   'IF',
+  'ELSE',   'AND',    'OR',    'NOT',     'LEN',    'SEL',    'RED',   'GREEN',
+  'STR',    'NUM',    'NAME',  'FALSE',   'TRUE',   'GRAY',   'VARS',  'EVAL',
+  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'BY' 
 ]
 
 reserved = {
@@ -42,7 +32,7 @@ reserved = {
   'false': 'FALSE',  'true': 'TRUE', 'gray'  : 'GRAY',
   'grey' : 'GRAY',   'eval' : 'EVAL','varnames' : 'VARS',
   'evens': 'EVEN',   'odds' : 'ODD', 'avg'   : 'AVG',
-  'to'   : 'TO'
+  'to'   : 'TO',     'by'   : 'BY'
 }
 
 # Identifiers
@@ -209,8 +199,13 @@ def p_expr_color(t):
     t[0] = "```%s```"% str(t[2])
 
 def p_expr_list_range(t):
-  '''expr : expr TO expr'''
-  t[0] = [x for x in range(t[1], t[3]+1)]
+  '''expr : expr TO expr
+          | expr TO expr BY expr'''
+  by = abs(t[5]) if len(t) == 6 else 1
+  if t[1] < t[3]:
+    t[0] = [x for x in range(t[1], t[3]+1, by)]
+  else:
+    t[0] = [x for x in range(t[1], t[3]-1, -by)]
 
 
 def p_expr_cast(t):
