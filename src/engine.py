@@ -203,9 +203,9 @@ def p_expr_list_range(t):
           | expr TO expr BY expr'''
   by = abs(t[5]) if len(t) == 6 else 1
   if t[1] < t[3]:
-    t[0] = [x for x in range(t[1], t[3]+1, by)]
+    t[0] = [x for x in range(t[1], t[3], by)]
   else:
-    t[0] = [x for x in range(t[1], t[3]-1, -by)]
+    t[0] = [x for x in range(t[1], t[3], -by)]
 
 
 def p_expr_cast(t):
