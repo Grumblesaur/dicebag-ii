@@ -1,31 +1,23 @@
-from math import log, factorial
-from random import randint, choice
 import global_vars
 import ply.yacc as yacc
-import sys
-import names
-import gen
 
 class ParseError(Exception):
   pass
 
 tokens = [ # token declarations
-  'MUL',    'DIV',    'LOG',   'EXP',     'LPAR',   'RPAR',   'MOD',   'LBRK',
-  'RBRK',   'ADD',    'SUB',   'SUM',     'AVG',    'COM',    'SAMM',  'FDIV',
-  'REP',    'EVEN',   'ODD',   'ASS',     'NUMBER', 'MACRO',  'IDENT', 'DEL',
-  'ROOT',   'VADD',   'VSUB',  'VMUL',    'VDIV',   'VFDIV',  'VEXP',  'VLOG',
-  'VCAT',   'VMOD',   'VROOT', 'LBRC',    'RBRC',   'INS',    'CAT',   'IN',
-  'DIE',    'HIGH',   'LOW',   'FACT',    'VFACT',  'CHOOSE', 'VCHOOSE',
-  'YIELD',  'GT',     'LT',    'EQ',      'GEQ',    'LEQ',    'NEQ',   'IF',
-  'ELSE',   'AND',    'OR',    'NOT',     'LEN',    'SEL',    'RED',   'GREEN',
-  'STR',    'NUM',    'NAME',  'FALSE',   'TRUE',   'GRAY',   'VARS',  'EVAL',
-  'LSHIFT', 'RSHIFT', 'SEP',   'BIT_AND', 'BIT_OR', 'TO',     'COLON', 'BY', 
+  'REP',    'ASS',   'NUMBER',
+  'STRING', 'IDENT', 'DEL',
+  'LPAR',   'RPAR',  'LBRK',
+  'RBRK',   'COM',   'LBRC',
+  'RBRC',   'INS',   'YIELD',
+  'IF',     'ELSE',  'FALSE',
+  'TRUE',   'VARS',  'EVAL',
+  'SEP',    'COLON', 
 ]
 
 reserved = {
   'd'    : 'DIE',    'h'    : 'HIGH', 'l'        : 'LOW',
-  'c'    : 'CHOOSE', 'or'   : 'OR',   'and'      : 'AND',
-  'not'  : 'NOT',    'del'  : 'DEL',  'if'       : 'IF',
+  'del'  : 'DEL',  'if'       : 'IF',
   'else' : 'ELSE',   'len'  : 'LEN',  'sel'      : 'SEL',
   'in'   : 'IN',     'red'  : 'RED',  'green'    : 'GREEN',
   'str'  : 'STR',    'num'  : 'NUM',  'name'     : 'NAME',
@@ -54,7 +46,7 @@ def t_NUMBER(t):
   t.value = n if f == n else f
   return t
 
-def t_MACRO(t):
+def t_STRING(t):
   r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
   t.value = eval(t.value)
   return t
@@ -71,51 +63,6 @@ t_LBRC = r'{'
 t_RBRC = r'}'
 t_COLON= r':'
 
-# Vector unaries
-t_SUM     = r'\#'
-t_AVG     = r'@'
-t_SAMM    = r'\?'
-
-# Arithmetic and algebraic operators
-t_EXP  = r'\*\*'
-t_VEXP = r'<\*\*>'
-t_LOG  = r'~'
-t_VLOG = r'<~>'
-t_VCHOOSE= r'<c>'
-t_FACT = r'!'
-t_VFACT= r'<!>'
-t_MUL  = r'\*'
-t_VMUL = r'<\*>'
-t_DIV  = r'/'
-t_VDIV = r'</>'
-t_FDIV = r'//'
-t_VFDIV= r'<//>'
-t_MOD  = r'%'
-t_VMOD = r'<%>'
-t_ROOT = r'%%'
-t_VROOT= r'<%%>'
-t_ADD  = r'\+'
-t_VADD = r'<\+>'
-t_SUB  = r'-'
-t_VSUB = r'<->'
-t_BIT_AND = r'&'
-t_BIT_OR  = r'\|'
-t_LSHIFT  = r'<<'
-t_RSHIFT  = r'>>'
-
-# Comparison operators
-t_EQ   = r'=='
-t_NEQ  = r'!='
-t_GEQ  = r'>='
-t_LEQ  = r'<='
-t_GT   = r'>'
-t_LT   = r'<'
-
-# Type subverting operators
-t_CAT  = r'\$'
-t_VCAT = r'<\$>'
-
-# Storage manipulators
 t_INS  = r'<-'
 t_YIELD= r'->'
 t_ASS  = r'='
@@ -137,37 +84,14 @@ lexer = lex.lex()
 
 
 # parsing rules
-precedence = (
-  ('right',  'EVAL'),
-  ('right',  'RED', 'GREEN'),
-  ('right',  'IF'),
-  ('right',  'ASS'),
-  ('nonassoc', 'INS'),
-  ('nonassoc', 'TO'),
-  ('nonassoc', 'BY'),
-  ('left',  'CAT', 'VCAT'),
-  ('nonassoc', 'IN'),
-  ('left',  'OR'),
-  ('left',  'AND'),
-  ('right', 'NOT', 'STR', 'NUM', 'NAME'),
-  ('left',  'BIT_OR'),
-  ('left',  'BIT_AND'),
-  ('nonassoc', 'LT', 'GT', 'LEQ', 'GEQ', 'EQ', 'NEQ'),
-  ('left',  'LSHIFT', 'RSHIFT'),
-  ('left',  'ADD', 'SUB', 'VADD', 'VSUB'),
-  ('left',  'MUL', 'DIV', 'FDIV', 'MOD', 'VMUL', 'VDIV', 'VFDIV', 'VMOD'),
-  ('right', 'ABS', 'NEG'),
-  ('right', 'ROOT', 'VROOT'),
-  ('right', 'FACT', 'VFACT'),
-  ('left',  'CHOOSE', 'VCHOOSE'),
-  ('left',  'LOG', 'VLOG'),
-  ('right', 'EXP', 'VEXP'),
-  ('nonassoc', 'SUM', 'AVG', 'SAMM', 'EVEN', 'ODD', 'LEN', 'SEL'),
-  ('right', 'LOW', 'HIGH'),
-  ('left', 'LBRC', 'RBRC'),
-  ('left',  'DIE'),
-  ('left', 'REP'),
-)
+precedence = {
+    0 : ('right',  'EVAL'),
+   20 : ('right',  'IF'),
+   30 : ('right',  'ASS'),
+   40 : ('nonassoc', 'INS'),
+  260 : ('left', 'LBRC', 'RBRC'),
+  280 : ('left', 'REP'),
+}
 
 # Expressions
 def p_stmt_list_t(t):
@@ -188,205 +112,9 @@ def p_expr_bool_t(t):
           | FALSE'''
   t[0] = t[1].casefold() == 'true'
 
-def p_expr_color(t):
-  '''expr : GREEN expr
-          | RED expr
-          | GRAY expr'''
-  if t[1] == 'green':
-    t[0] = "```diff\n+ %s```" % str(t[2])
-  elif t[1] == 'red':
-    t[0] = "```diff\n- %s```" % str(t[2])
-  else:
-    t[0] = "```%s```"% str(t[2])
-
-def p_expr_range_stepped(t):
-  '''expr : expr TO expr BY expr'''
-  step = t[5]
-  if t[1] < t[3]:
-    t[0] = [x for x in range(t[1], t[3], step)]
-  else:
-    t[0] = [x for x in range(t[1], t[3], -step)]
-
-def p_expr_range(t):
-  '''expr : expr TO expr'''
-  if t[1] < t[3]:
-    t[0] = [x for x in range(t[1], t[3])]
-  else:
-    t[0] = [x for x in range(t[1], t[3], -1)]
-
-
-
-def p_expr_cast(t):
-  '''expr : STR expr
-          | NUM expr'''
-  if t[1] == 'str':
-    t[0] = str(t[2])
-  else:
-    x = None
-    try:
-      x = float(t[2])
-      y = int(x)
-    except ValueError as e:
-      raise ParseError(e)
-    t[0] = y if y == x else x 
-      
-
-
 def p_vars(t):
   '''expr : VARS'''
   t[0] = '```%s```' % '  '.join(sorted(global_vars.dice_vars.keys()))
-
-def p_expr_fact(t):
-  '''expr : expr FACT'''
-  t[0] = factorial(t[1])
-
-def p_expr_vfact(t):
-  '''expr : expr VFACT'''
-  t[0] = [factorial(x) for x in t[1]]
-
-def choose(n, k):
-  return factorial(n) / (factorial(k) * factorial(n - k))
-
-def p_expr_choose(t):
-  '''expr : expr CHOOSE expr'''
-  t[0] = choose(t[1], t[3])
-
-def p_expr_vchoose(t):
-  '''expr : expr VCHOOSE expr'''
-  t[0] = [choose(n, k) for n, k in zip(t[1], t[3])]
-
-def p_expr_vbinop(t):
-  '''expr : expr VCAT expr
-          | expr VADD expr
-          | expr VSUB expr
-          | expr VMUL expr
-          | expr VDIV expr
-          | expr VMOD expr
-          | expr VFDIV expr
-          | expr VROOT expr
-          | expr VLOG expr
-          | expr VEXP expr
-  '''
-  if   t[2] == '<$>':
-    t[0] = map(
-      lambda x: int(x[0]+x[1]),
-      zip(str(int(t[1])), str(int(t[3])))
-    )
-  elif t[2] == '<+>':
-    t[0] = [sum(x) for x in zip(t[1], t[3])]
-  elif t[2] == '<->':
-    t[0] = [x[0] - x[1] for x in zip(t[1], t[3])]
-  elif t[2] == '<*>':
-    t[0] = [x[0] * x[1] for x in zip(t[1], t[3])]
-  elif t[2] == '</>':
-    t[0] = [x[0] / x[1] for x in zip(t[1], t[3])]
-  elif t[2] == '<%>':
-    t[0] = [x[0] % x[1] for x in zip(t[1], t[3])]
-  elif t[2] == '<//>':
-    t[0] = [x[0] // x[1], zip(t[1], t[3])]
-  elif t[2] == '<%%>':
-    t[0] = [x[1] ** (1.0 / x[0]) for x in zip(t[1], t[3])]
-  elif t[2] == '<~>':
-    t[0] = [log(x[1], x[0]) for x in zip(t[1], t[3])]
-  elif t[2] == '<**>':
-    t[0] = [x[0] ** x[1] for x in zip(t[1], t[3])]
-
-
-def p_expr_binop(t):
-  '''expr : expr CAT  expr
-          | expr BIT_AND expr
-          | expr BIT_OR expr
-          | expr LSHIFT expr
-          | expr RSHIFT expr
-          | expr ADD  expr
-          | expr SUB  expr
-          | expr MUL  expr
-          | expr DIV  expr
-          | expr MOD  expr
-          | expr FDIV expr
-          | expr ROOT expr
-          | expr LOG  expr
-          | expr EXP  expr
-          | expr DIE  expr
-  '''
-  if   t[2] == '$':
-    t[0] = int(''.join(map(lambda x: str(int(x)), (t[1], t[3]))))
-  elif t[2] == '&':
-    t[0] = t[1] & t[3]
-  elif t[2] == '|':
-    t[0] = t[1] | t[3]
-  elif t[2] == '<<':
-    t[0] = t[1] << t[3]
-  elif t[2] == '>>':
-    t[0] = t[1] >> t[3]
-  elif t[2] == '+':
-    t[0] = t[1] + t[3]
-  elif t[2] == '-':
-    t[0] = t[1] - t[3]
-  elif t[2] == '*':
-    t[0] = t[1] * t[3]
-  elif t[2] == '/':
-    t[0] = t[1] / t[3]
-  elif t[2] == '%':
-    t[0] = t[1] % t[3]
-  elif t[2] == '//':
-    t[0] = t[1] // t[3]
-  elif t[2] == '%%':
-    t[0] = t[3] ** (1.0 / t[1])
-  elif t[2] == '~':
-    t[0] = log(t[3], t[1])
-  elif t[2] == '**':
-    t[0] = t[1] ** t[3]
-  elif t[2] == 'd':
-    t[0] = [randint(1, t[3]) for x in range(t[1])]
-    t[0] = t[0][0] if len(t[0]) == 1 else t[0]
-
-
-def p_expr_comp(t):
-  ''' expr : expr GT expr
-           | expr LT expr
-           | expr EQ expr
-           | expr NEQ expr
-           | expr GEQ expr
-           | expr LEQ expr
-  '''
-  if   t[2] == '>':
-    t[0] = t[1] > t[3]
-  elif t[2] == '<':
-    t[0] = t[1] < t[3]
-  elif t[2] == '==':
-    t[0] = t[1] == t[3]
-  elif t[2] == '!=':
-    t[0] = t[1] != t[3]
-  elif t[2] == '>=':
-    t[0] = t[1] >= t[3]
-  elif t[2] == '<=':
-    t[0] = t[1] <= t[3]
-
-def p_expr_or(t):
-  'expr : expr OR expr'
-  t[0] = t[1] or t[3]
-
-def p_expr_and(t):
-  'expr : expr AND expr'
-  t[0] = t[1] and t[3]
-
-def p_expr_not(t):
-  'expr : NOT expr'
-  t[0] = not t[2]
-
-def p_expr_in(t):
-  'expr : expr IN expr'
-  t[0] = t[1] in t[3]
-
-def p_expr_sign(t):
-  '''expr : ADD expr %prec ABS
-          | SUB expr %prec NEG
-  '''
-  if t[1] == '+':
-    t[0] = abs(t[2])
-  else:
-    t[0] = -t[2]
 
 def p_expr_meta_rep(t):
   'expr : expr REP expr'
@@ -395,49 +123,6 @@ def p_expr_meta_rep(t):
 def p_expr_meta_eval(t):
   '''expr : EVAL expr'''
   t[0] = parser.parse(t[2])
-
-def p_expr_sum(t):
-  'expr : SUM expr'
-  try:
-    t[0] = sum(t[2])
-  except TypeError:
-    t[0] = ''.join(t[2])
-  
-def p_expr_avg(t):
-  'expr : AVG expr'
-  t[0] = sum(t[2]) / len(t[2])
-
-def p_expr_samm(t):
-  'expr : SAMM expr'
-  t[0] = [sum(t[2]), (sum(t[2]) / len(t[2])), max(t[2]), min(t[2])]
-
-def p_expr_even(t):
-  'expr : EVEN expr'
-  t[0] = [x for x in t[2] if not (x % 2)]
-
-def p_expr_odd(t):
-  'expr : ODD expr'
-  t[0] = [x for x in t[2] if x % 2]
-
-def p_expr_len(t):
-  'expr : LEN expr'
-  t[0] = len(t[2])
-
-def p_expr_sel(t):
-  'expr : SEL expr'
-  t[0] = choice(t[2])
-
-def p_expr_tail(t):
-  '''expr : expr LOW  expr
-          | expr HIGH expr
-  '''
-  if   t[2] == 'l':
-    t[0] = sorted(t[1])[:t[3]]
-  elif t[2] == 'h':
-    t[0] = [x for x in reversed(sorted(t[1]))][:t[3]]
-  
-  t[0] = t[0][0] if len(t[0]) == 1 else t[0]
-
 
 def p_conditional(t):
   '''expr : expr IF expr ELSE expr
@@ -448,10 +133,10 @@ def p_conditional(t):
     t[0] = t[1] if t[1] else t[4]
 
 # Concrete values
-def p_expr_unit(t):
+def p_primary(t):
   '''expr : LPAR expr RPAR
           | NUMBER
-          | MACRO'''
+          | STRING'''
   if len(t) == 4:
     t[0] = t[2]
   else:
@@ -483,7 +168,7 @@ def p_named_func_call(t):
   t[0] = parser.parse(algo)
 
 def p_func_expr(t):
-  '''func_expr : param_list YIELD MACRO'''
+  '''func_expr : param_list YIELD STRING'''
   f = "%s -> '%s'" % (','.join(t[1]), t[3])
   t[0] = f
 
@@ -525,8 +210,6 @@ def p_elements(t):
   else:
     t[0] = [t[1]]
   
-
-
 
 # Memory manipulation
 def p_index_expr(t):

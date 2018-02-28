@@ -1,11 +1,13 @@
 tokens = ['GT', 'LT', 'GE', 'LE', 'EQ', 'NE']
 
+literals = """
 t_GT = r'>'
 t_GE = r'>='
 t_LT = r'<'
 t_LE = r'<='
 t_EQ = r'=='
 t_NE = r'!='
+"""
 
 reserved = { }
 
@@ -36,8 +38,6 @@ def p_eq(tokens):
 def p_ne(tokens):
   '''expr : expr NE expr'''
   tokens[0] = tokens[1] != tokens[3]
-
-
 
 
 

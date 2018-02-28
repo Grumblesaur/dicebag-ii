@@ -1,18 +1,23 @@
-tokens = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'FDIV']
+tokens = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'FDIV', 'NUM']
 
+literals = """
 t_ADD = r'\+'
 t_SUB = r'-'
 t_MUL = r'\*'
 t_DIV = r'/'
 t_MOD = r'%'
 t_FDIV = r'//'
+t_CAT  = r'$'
+"""
 
-reserved = { }
+reserved = {'num' : 'NUM'}
 
 precedence = {
   160 : ('left',  'ADD', 'SUB'),
   170 : ('left',  'MUL', 'DIV', 'MOD', 'FDIV'),
   180 : ('right', 'ABS', 'NEG'),
+  70  : ('left',  'CAT'),
+  110 : ('right', 'NUM'),
 }
 
 def p_add(tokens):
@@ -57,6 +62,15 @@ def p_neg(tokens):
     except Exception:
       result = t[2]
   t[0] = result
+
+def p_num(tokens):
+  '''expr : NUM expr'''
+  try:
+    x = float(tokens[2])
+    y = int(x)
+  except ValueError as e:
+    raise ParseError(e)
+  tokens[0] = y if y == x else x
 
 
 
