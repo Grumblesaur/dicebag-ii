@@ -1,5 +1,22 @@
 import global_vars
 import ply.yacc as yacc
+import rules.algebraic
+import rules.arithmetic
+import rules.bitwise
+import rules.boolean
+import rules.comparative
+import rules.name
+import rules.random
+import rules.string
+import rules.vector
+
+modules = (
+  rules.algebraic,   rules.arithmetic,
+  rules.bitwise,     rules.boolean,
+  rules.comparative, rules.name,
+  rules.random,      rules.string,
+  rules.vector
+)
 
 class ParseError(Exception):
   pass
@@ -13,18 +30,28 @@ tokens = [ # token declarations
   'IF',     'ELSE',  'FALSE',
   'TRUE',   'VARS',  'EVAL',
   'SEP',    'COLON', 
-]
+] + (
+  rules.algebraic.tokens + rules.arithmetic.tokens + rules.bitwise.tokens
+  + rules.boolean.tokens + rules.comparative.tokens + rules.name.tokens
+  + rules.random.tokens  + rules.string.tokens + rules.vector.tokens
+)
 
 reserved = {
-  'd'    : 'DIE',    'h'    : 'HIGH', 'l'        : 'LOW',
-  'del'  : 'DEL',  'if'       : 'IF',
-  'else' : 'ELSE',   'len'  : 'LEN',  'sel'      : 'SEL',
-  'in'   : 'IN',     'red'  : 'RED',  'green'    : 'GREEN',
-  'str'  : 'STR',    'num'  : 'NUM',  'name'     : 'NAME',
-  'false': 'FALSE',  'true' : 'TRUE', 'gray'     : 'GRAY',
-  'grey' : 'GRAY',   'eval' : 'EVAL',
-  'evens': 'EVEN',   'odds' : 'ODD',  'avg'      : 'AVG',
-  'to'   : 'TO',     'by'   : 'BY',   'vars' : 'VARS',
+  'del'  : 'DEL',
+  'if'   : 'IF',
+  'else' : 'ELSE',
+  'false': 'FALSE',
+  'true' : 'TRUE',
+  'eval' : 'EVAL',
+  'vars' : 'VARS',
+}
+
+reserved = {
+  **reserved,                  **rules.algebraic.reserved,
+  **rules.arithmetic.reserved, **rules.bitwise.reserved,
+  **rules.boolean.reserved,    **rules.comparative.reserved,
+  **rules.name.reserved,       **rules.random.reserved,
+  **rules.string.reserved,     **rules.vector.reserved
 }
 
 # Identifiers
@@ -51,8 +78,11 @@ def t_STRING(t):
   t.value = eval(t.value)
   return t
 
+# Non-alphabetical symbols
+for module in modules:
+  exec(module.literals)
+  exec(module.productions)
 
-# Grouping symbols and miscellanea
 t_SEP  = r';'
 t_REP  = r'\^'
 t_LPAR = r'\('
@@ -62,15 +92,10 @@ t_RBRK = r'\]'
 t_LBRC = r'{'
 t_RBRC = r'}'
 t_COLON= r':'
-
 t_INS  = r'<-'
 t_YIELD= r'->'
 t_ASS  = r'='
-
-# Separators
 t_COM  = r','
-
-
 t_ignore = ' \t\n\r`'
 
 
@@ -92,6 +117,16 @@ precedence = {
   260 : ('left', 'LBRC', 'RBRC'),
   280 : ('left', 'REP'),
 }
+
+precedence = {
+  **precedence, **rules.algebraic.precedence,
+  **rules.arithmetic.precedence, **rules.bitwise.precedence,
+  **rules.boolean.precedence, **rules.comparative.precedence,
+  **rules.name.precedence, **rules.random.precedence,
+  **rules.string.precedence, **rules.vector.precedence
+}
+
+precedence = [x[1] for x in sorted(precedence.items())]
 
 # Expressions
 def p_stmt_list_t(t):

@@ -1,6 +1,3 @@
-from random import randint
-from random import shuffle
-
 tokens = ['DIE', 'HIGH', 'LOW', 'SEL', 'TO', 'BY', 'SHUFFLE', 'SORT']
 
 literals = """pass"""
@@ -11,7 +8,7 @@ reserved = {
   'h'       : 'HIGH',
   'sel'     : 'SEL',
   'to'      : 'TO',
-  'by'      : 'BY'
+  'by'      : 'BY',
   'sort'    : 'SORT',
   'shuffle' : 'SHUFFLE'
 }
@@ -24,6 +21,11 @@ precedence = {
   240 : ('right', 'SEL', 'SHUFFLE', 'SORT'),
 }
 
+
+productions = """
+from random import randint
+from random import shuffle
+from random import choice
 def p_range(tokens):
   '''expr : expr TO expr'''
   if tokens[1] < tokens[3]:
@@ -52,6 +54,10 @@ def p_high(tokens):
   '''expr : expr HIGH expr'''
   tokens[0] = [x for x in reversed(sorted(tokens[1]))][:tokens[3]]
 
+def p_sel(tokens):
+  '''expr : SEL expr'''
+  tokens[0] = choice(tokens[2])
+
 def p_shuffle(tokens):
   '''expr : SHUFFLE expr'''
   temp = tokens[2]
@@ -61,6 +67,7 @@ def p_shuffle(tokens):
 def p_sort(tokens):
   '''expr : SORT expr'''
   tokens[0] = sorted(tokens[2])
+"""
 
 
 

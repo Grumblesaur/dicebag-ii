@@ -1,4 +1,4 @@
-tokens = ['AND', 'OR', 'NOT']
+tokens = ['AND', 'OR', 'NOT', 'IN']
 
 literals = """pass"""
 
@@ -11,6 +11,7 @@ precedence = {
   110 : ('right', 'NOT'),
 }
 
+productions = """ 
 def p_and(tokens):
   '''expr : expr AND expr'''
   tokens[0] = tokens[1] and tokens[3]
@@ -26,5 +27,7 @@ def p_not(tokens):
 def p_in(tokens):
   '''expr : expr IN expr'''
   tokens[0] = tokens[1] in token[3]
+"""
+
 
 

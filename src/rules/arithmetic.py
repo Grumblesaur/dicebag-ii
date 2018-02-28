@@ -1,4 +1,4 @@
-tokens = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'FDIV', 'NUM']
+tokens = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'FDIV', 'NUM', 'CAT']
 
 literals = """
 t_ADD = r'\+'
@@ -7,7 +7,7 @@ t_MUL = r'\*'
 t_DIV = r'/'
 t_MOD = r'%'
 t_FDIV = r'//'
-t_CAT  = r'$'
+t_CAT  = r'\$'
 """
 
 reserved = {'num' : 'NUM'}
@@ -20,6 +20,7 @@ precedence = {
   110 : ('right', 'NUM'),
 }
 
+productions = """
 def p_add(tokens):
   '''expr : expr ADD expr'''
   tokens[0] = tokens[1] + tokens[3]
@@ -53,7 +54,7 @@ def p_abs(tokens):
   t[0] = result
 
 def p_neg(tokens):
-  '''expr : SUB expr %prec SUB'''
+  '''expr : SUB expr %prec NEG'''
   try:
     result = -t[2]
   except TypeError:
@@ -72,6 +73,11 @@ def p_num(tokens):
     raise ParseError(e)
   tokens[0] = y if y == x else x
 
+def p_cat(tokens):
+  '''expr : expr CAT expr'''
+  tokens[0] = int(str(tokens[1]) + str(tokens[3]))
+
+"""
 
 
 
