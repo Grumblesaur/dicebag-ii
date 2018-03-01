@@ -123,6 +123,7 @@ lexer = lex.lex()
 # Parser Precedence Rules #
 ###########################
 precedence = {
+ -100 : ('left',   'SEP'),
     0 : ('right',  'EVAL'),
    20 : ('right',  'IF'),
    30 : ('right',  'ASS'),
@@ -153,6 +154,23 @@ from rules.name_productions import *
 from rules.random_productions import *
 from rules.string_productions import *
 from rules.vector_productions import *
+
+# Top-level code structure
+
+start = 'stmt_list'
+
+def p_stmt(t):
+  '''stmt : expr'''
+  t[0] = t[1]
+
+def p_stmt_list(t):
+  '''stmt_list : stmt_list SEP stmt
+               | stmt'''
+  if len(t) == 2:
+    t[0] = t[1]
+  else:
+    t[0] = t[3]
+  global_vars.dice_vars['_'] = t[0] 
 
 # Built-in expressions
 def p_expr_bool_t(t):
@@ -305,19 +323,6 @@ def p_delete(t):
   else:
     t[0] = (global_vars.dice_vars[t[2]])[t[4]]
     del (global_vars.dice_vars[t[2]])[t[4]]
-
-def p_stmt(t):
-  '''stmt : expr'''
-  t[0] = t[1]
-
-def p_stmt_list(t):
-  '''stmt_list : stmt_list SEP stmt
-               | stmt'''
-  if len(t) == 2:
-    t[0] = t[1]
-  else:
-    t[0] = t[3]
-  global_vars.dice_vars['_'] = t[0] 
 
 def p_error(t):
   raise ParseError(str(t))
