@@ -10,6 +10,7 @@ import rules.comparative_data
 import rules.name_data
 import rules.random_data
 import rules.string_data
+import rules.tuple_data
 import rules.vector_data
 
 ######################################
@@ -23,7 +24,7 @@ modules = (
   rules.bitwise_data,     rules.boolean_data,
   rules.comparative_data, rules.name_data,
   rules.random_data,      rules.string_data,
-  rules.vector_data
+  rules.tuple_data,       rules.vector_data
 )
 
 class ParseError(Exception):
@@ -153,6 +154,7 @@ from rules.comparative_productions import *
 from rules.name_productions import *
 from rules.random_productions import *
 from rules.string_productions import *
+from rules.tuple_productions import *
 from rules.vector_productions import *
 
 # Top-level code structure
