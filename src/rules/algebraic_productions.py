@@ -15,7 +15,7 @@ def p_log(tokens):
 
 def p_choose(tokens):
   '''expr : expr CHOOSE expr'''
-  tokens[0] = factorial(tokens[1]) / (
+  tokens[0] = factorial(tokens[1]) // (
     factorial(tokens[3]) * factorial(tokens[1] - tokens[3])
   )
 

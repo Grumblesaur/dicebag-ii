@@ -12,6 +12,7 @@ t_FACT   = r'!'
 precedence = {
   190 : ('right', 'ROOT'),
   200 : ('right', 'FACT'),
+  205 : ('left',  'CHOOSE'),
   210 : ('left',  'LOG'),
   220 : ('right', 'EXP'),
 }
