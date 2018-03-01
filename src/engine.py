@@ -1,41 +1,51 @@
 import global_vars
 import ply.yacc as yacc
-import rules.algebraic
-import rules.arithmetic
-import rules.bitwise
-import rules.boolean
-import rules.comparative
-import rules.name
-import rules.random
-import rules.string
-import rules.vector
+
+# Language module imports
+import rules.algebraic_data
+import rules.arithmetic_data
+import rules.bitwise_data
+import rules.boolean_data
+import rules.comparative_data
+import rules.name_data
+import rules.random_data
+import rules.string_data
+import rules.vector_data
+
+######################################
+# Import modules you intend to use   #
+# above here and then add their name #
+# to the list below accordingly.     #
+######################################
 
 modules = (
-  rules.algebraic,   rules.arithmetic,
-  rules.bitwise,     rules.boolean,
-  rules.comparative, rules.name,
-  rules.random,      rules.string,
-  rules.vector
+  rules.algebraic_data,   rules.arithmetic_data,
+  rules.bitwise_data,     rules.boolean_data,
+  rules.comparative_data, rules.name_data,
+  rules.random_data,      rules.string_data,
+  rules.vector_data
 )
 
 class ParseError(Exception):
   pass
 
+# Built-in token names
 tokens = [ # token declarations
   'REP',    'ASS',   'NUMBER',
   'STRING', 'IDENT', 'DEL',
   'LPAR',   'RPAR',  'LBRK',
   'RBRK',   'COM',   'LBRC',
-  'RBRC',   'INS',   'YIELD',
-  'IF',     'ELSE',  'FALSE',
-  'TRUE',   'VARS',  'EVAL',
-  'SEP',    'COLON', 
-] + (
-  rules.algebraic.tokens + rules.arithmetic.tokens + rules.bitwise.tokens
-  + rules.boolean.tokens + rules.comparative.tokens + rules.name.tokens
-  + rules.random.tokens  + rules.string.tokens + rules.vector.tokens
-)
+  'RBRC',   'YIELD', 'IF',
+  'ELSE',  'FALSE',  'TRUE',
+  'VARS',  'EVAL',   'SEP',
+  'COLON', 
+]
 
+# module-defined token names
+for module in modules:
+  tokens += module.tokens
+
+# Built in reserved words
 reserved = {
   'del'  : 'DEL',
   'if'   : 'IF',
@@ -46,15 +56,11 @@ reserved = {
   'vars' : 'VARS',
 }
 
-reserved = {
-  **reserved,                  **rules.algebraic.reserved,
-  **rules.arithmetic.reserved, **rules.bitwise.reserved,
-  **rules.boolean.reserved,    **rules.comparative.reserved,
-  **rules.name.reserved,       **rules.random.reserved,
-  **rules.string.reserved,     **rules.vector.reserved
-}
+# Append module-defined reserved words
+for module in modules:
+  reserved = {**reserved, **module.reserved}
 
-# Identifiers
+# Variable names
 def t_IDENT(t):
   r'[a-zA-Z_]+'
   # Intercept reserved words before they get treated like identifiers
@@ -62,6 +68,7 @@ def t_IDENT(t):
     t.type = reserved[t.value]
   return t
 
+# Numeric literals
 def t_NUMBER(t):
   r'(\d*\.)?\d+'
   n = None
@@ -73,16 +80,19 @@ def t_NUMBER(t):
   t.value = n if f == n else f
   return t
 
+# String objects
 def t_STRING(t):
   r"""(\"(\\.|[^"\\])*\"|\'(\\.|[^'\\])*\')"""
   t.value = eval(t.value)
   return t
 
-# Non-alphabetical symbols
+# Read the stringified definitions of literal tokens
+# from the appropriate module to assign them to our
+# global namespace without overwriting previous modules.
 for module in modules:
   exec(module.literals)
-  exec(module.productions)
 
+# Builtin literal tokens
 t_SEP  = r';'
 t_REP  = r'\^'
 t_LPAR = r'\('
@@ -92,7 +102,6 @@ t_RBRK = r'\]'
 t_LBRC = r'{'
 t_RBRC = r'}'
 t_COLON= r':'
-t_INS  = r'<-'
 t_YIELD= r'->'
 t_ASS  = r'='
 t_COM  = r','
@@ -103,45 +112,49 @@ def t_error(t):
   raise ParseError('Cannot parse symbol "%s"' % t.value[0])
 
   
-# lexer
+###################
+# Build the lexer #
+###################
 import ply.lex as lex
 lexer = lex.lex()
 
 
-# parsing rules
+###########################
+# Parser Precedence Rules #
+###########################
 precedence = {
     0 : ('right',  'EVAL'),
    20 : ('right',  'IF'),
    30 : ('right',  'ASS'),
-   40 : ('nonassoc', 'INS'),
   260 : ('left', 'LBRC', 'RBRC'),
   280 : ('left', 'REP'),
 }
+# Add precedence rules from modules
+precedence = list(precedence.items())
+for module in modules:
+  precedence += list(module.precedence.items())
 
-precedence = {
-  **precedence, **rules.algebraic.precedence,
-  **rules.arithmetic.precedence, **rules.bitwise.precedence,
-  **rules.boolean.precedence, **rules.comparative.precedence,
-  **rules.name.precedence, **rules.random.precedence,
-  **rules.string.precedence, **rules.vector.precedence
-}
+# Reduce precedence rules to a format which PLY understands
+precedence = [x[1] for x in sorted(precedence, key=lambda e: e[0])]
 
-precedence = [x[1] for x in sorted(precedence.items())]
 
-# Expressions
-def p_stmt_list_t(t):
-  '''stmt_list : stmt
-               | stmt_list SEP stmt'''
-  if len(t) == 2:
-    t[0] = t[1]
-  else:
-    t[0] = t[3]
-  global_vars.dice_vars['_'] = t[0] 
 
-def p_stmt(t):
-  '''stmt : expr'''
-  t[0] = t[1]
+###########################
+# Parser Production Rules #
+###########################
 
+# ADD RULE MODULE INPUTS HERE
+from rules.algebraic_productions import *
+from rules.arithmetic_productions import *
+from rules.bitwise_productions import *
+from rules.boolean_productions import *
+from rules.comparative_productions import *
+from rules.name_productions import *
+from rules.random_productions import *
+from rules.string_productions import *
+from rules.vector_productions import *
+
+# Built-in expressions
 def p_expr_bool_t(t):
   '''expr : TRUE
           | FALSE'''
@@ -215,8 +228,7 @@ def p_func_assign(t):
 # Variadic constructions
 def p_param_list(t):
   '''param_list : LBRK elements RBRK
-                | LBRK RBRK
-  '''
+                | LBRK RBRK'''
   if len(t) == 4:
     t[0] = t[2]
   else:
@@ -228,8 +240,7 @@ def p_list(t):
 
 def p_list_expr(t):
   '''list_expr : LBRK elements RBRK
-               | LBRK RBRK
-  '''
+               | LBRK RBRK'''
   if len(t) == 4:
     t[0] = t[2]
   else:
@@ -238,8 +249,7 @@ def p_list_expr(t):
 
 def p_elements(t):
   '''elements : expr COM elements
-              | expr
-  '''
+              | expr'''
   if len(t) == 4:
     t[0] = [t[1]] + t[3]
   else:
@@ -249,8 +259,7 @@ def p_elements(t):
 # Memory manipulation
 def p_index_expr(t):
   '''expr : expr LBRC expr RBRC
-          | IDENT LBRC expr RBRC
-  '''
+          | IDENT LBRC expr RBRC'''
   try:
     t[0] = t[1][t[3]]
   except Exception:
@@ -258,8 +267,7 @@ def p_index_expr(t):
 
 def p_dictexpr(t):
   '''dictexpr : LBRC pairs RBRC
-              | LBRC RBRC
-  '''
+              | LBRC RBRC'''
   if len(t) == 4:
     t[0] = dict(t[2])
   else:
@@ -267,8 +275,7 @@ def p_dictexpr(t):
 
 def p_pairs(t):
   '''pairs : expr COLON expr COM pairs
-           | expr COLON expr
-  '''
+           | expr COLON expr'''
   if len(t) == 6:
     t[0] = [[t[1], t[3]]] + t[5]
   else:
@@ -279,9 +286,8 @@ def p_expr_dictexpr(t):
   t[0] = t[1]
 
 def p_assign_expr(t):
-  '''expr : IDENT ASS expr
-          | IDENT LBRC expr RBRC ASS expr
-  '''
+  '''expr : IDENT LBRC expr RBRC ASS expr
+          | IDENT ASS expr'''
   if len(t) == 4:
     t[0] = t[3]
     global_vars.dice_vars[t[1]] = t[3]
@@ -290,16 +296,9 @@ def p_assign_expr(t):
     global_vars.dice_vars[t[1]][t[3]] = t[6]
 
 
-def p_insert_expr(t):
-  '''expr : IDENT INS expr COM expr'''
-  t[0] = t[5]
-  global_vars.dice_vars[t[1]][t[3]] = t[5]
-
-
 def p_delete(t):
-  '''expr : DEL IDENT
-          | DEL IDENT LBRC expr RBRC
-  '''
+  '''expr : DEL IDENT LBRC expr RBRC
+          | DEL IDENT'''
   if len(t) == 3:
     t[0] = global_vars.dice_vars[t[2]]
     del global_vars.dice_vars[t[2]]
@@ -307,10 +306,18 @@ def p_delete(t):
     t[0] = (global_vars.dice_vars[t[2]])[t[4]]
     del (global_vars.dice_vars[t[2]])[t[4]]
 
-def p_name(t):
-  '''expr : NAME expr'''
-  t[0] = gen.generateName(names.sanitize(t[2])) 
+def p_stmt(t):
+  '''stmt : expr'''
+  t[0] = t[1]
 
+def p_stmt_list(t):
+  '''stmt_list : stmt_list SEP stmt
+               | stmt'''
+  if len(t) == 2:
+    t[0] = t[1]
+  else:
+    t[0] = t[3]
+  global_vars.dice_vars['_'] = t[0] 
 
 def p_error(t):
   raise ParseError(str(t))
@@ -325,10 +332,6 @@ def roll(expr):
     return global_vars.dice_vars['_']
   except Exception as e:
     raise ParseError(e)
-
-
-
-
 
 
 

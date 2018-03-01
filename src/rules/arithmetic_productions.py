@@ -1,26 +1,3 @@
-tokens = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'FDIV', 'NUM', 'CAT']
-
-literals = """
-t_ADD = r'\+'
-t_SUB = r'-'
-t_MUL = r'\*'
-t_DIV = r'/'
-t_MOD = r'%'
-t_FDIV = r'//'
-t_CAT  = r'\$'
-"""
-
-reserved = {'num' : 'NUM'}
-
-precedence = {
-  160 : ('left',  'ADD', 'SUB'),
-  170 : ('left',  'MUL', 'DIV', 'MOD', 'FDIV'),
-  180 : ('right', 'ABS', 'NEG'),
-  70  : ('left',  'CAT'),
-  110 : ('right', 'NUM'),
-}
-
-productions = """
 def p_add(tokens):
   '''expr : expr ADD expr'''
   tokens[0] = tokens[1] + tokens[3]
@@ -75,9 +52,8 @@ def p_num(tokens):
 
 def p_cat(tokens):
   '''expr : expr CAT expr'''
-  tokens[0] = int(str(tokens[1]) + str(tokens[3]))
-
-"""
+  tokens[0] = int(str(int(tokens[1])) + str(int(tokens[3])))
 
 
 
+    

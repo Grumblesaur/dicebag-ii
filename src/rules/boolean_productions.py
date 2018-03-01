@@ -1,17 +1,3 @@
-tokens = ['AND', 'OR', 'NOT', 'IN']
-
-literals = """pass"""
-
-reserved = {'and' : 'AND', 'or' : 'OR', 'not' : 'NOT', 'in' : 'IN'}
-
-precedence = {
-  80  : ('nonassoc', 'IN'),
-  90  : ('left', 'OR'),
-  100 : ('left', 'AND'),
-  110 : ('right', 'NOT'),
-}
-
-productions = """ 
 def p_and(tokens):
   '''expr : expr AND expr'''
   tokens[0] = tokens[1] and tokens[3]
@@ -27,7 +13,5 @@ def p_not(tokens):
 def p_in(tokens):
   '''expr : expr IN expr'''
   tokens[0] = tokens[1] in token[3]
-"""
-
 
 

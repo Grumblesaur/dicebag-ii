@@ -1,25 +1,5 @@
-tokens = ['LOG', 'EXP', 'ROOT', 'FACT', 'CHOOSE']
-
-reserved = {'c' : 'CHOOSE'}
-
-literals = """
-t_LOG    = r'~'
-t_EXP    = r'\*\*'
-t_ROOT   = r'%%'
-t_FACT   = r'!'
-"""
-
-precedence = {
-  190 : ('right', 'ROOT'),
-  200 : ('right', 'FACT'),
-  210 : ('left',  'LOG'),
-  220 : ('right', 'EXP'),
-}
-
-productions = """
 from math import factorial
 from math import log
-
 
 def p_root(tokens):
   '''expr : expr ROOT expr'''
@@ -42,7 +22,5 @@ def p_choose(tokens):
 def p_exp(tokens):
   '''expr : expr EXP expr'''
   tokens[0] = tokens[1] ** tokens[3]
-"""
-
 
 
