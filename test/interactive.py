@@ -23,7 +23,7 @@ while True:
     command = input('[dicebag ii] ')
     if "exit" in command.casefold():
       break
-    print(roll(command.strip()))
+    print(roll(command.strip(), 'james'))
   except Exception as e:
     print(e)
     raise

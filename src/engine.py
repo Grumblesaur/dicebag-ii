@@ -1,4 +1,5 @@
 import global_vars
+import private_vars
 import ply.yacc as yacc
 
 # Language module imports
@@ -30,6 +31,9 @@ modules = (
 class ParseError(Exception):
   pass
 
+# `username` determines where to store private variables
+username = ''
+
 # Built-in token names
 tokens = [ # token declarations
   'REP',    'ASS',   'NUMBER',
@@ -39,7 +43,7 @@ tokens = [ # token declarations
   'RBRC',   'YIELD', 'IF',
   'ELSE',  'FALSE',  'TRUE',
   'VARS',  'EVAL',   'SEP',
-  'COLON', 
+  'COLON', 'MY'
 ]
 
 # module-defined token names
@@ -55,6 +59,8 @@ reserved = {
   'true' : 'TRUE',
   'eval' : 'EVAL',
   'vars' : 'VARS',
+  'my'   : 'MY',
+  'rep'  : 'REP'
 }
 
 # Append module-defined reserved words
@@ -175,22 +181,98 @@ def p_stmt_list(t):
   global_vars.dice_vars['_'] = t[0] 
 
 # Built-in expressions
-def p_expr_bool_t(t):
+def p_assignment_expr(tokens):
+  '''expr : assignment'''
+  tokens[0] = tokens[1]
+
+def p_assignment(tokens):
+  '''assignment : identifier subscript_list ASS expr
+                | identifier ASS expr'''
+  try:
+    var, usr = tokens[1]
+  except ValueError:
+    var, usr = tokens[1][0], None
+  if len(tokens) == 5:
+    tokens[0] = exec([
+        'global_vars.dice_vars','private_vars.dice_vars[%s]' % repr(usr)
+      ][bool(usr)]
+      + '[%s]' % repr(var)
+      + ''.join(['[%s]' % repr(sub) for sub in tokens[2]])
+      + ' = '
+      + tokens[4]
+    )
+  else:
+    tokens[0] = tokens[3]
+    if usr:
+      if usr not in private_vars.dice_vars:
+        private_vars.dice_vars[usr] = { }
+      private_vars.dice_vars[usr][var] = tokens[3]
+    else:
+      global_vars.dice_vars[var]  = tokens[3]
+
+def p_index_expr(tokens):
+  '''expr : expr subscript_list'''
+  current = tokens[1]
+  for sub in tokens[2]:
+    current = current[sub]
+  tokens[0] = current
+
+def p_var_expr(tokens):
+  '''expr : identifier'''
+  try:
+    var, usr = tokens[1]
+  except ValueError:
+    var, usr = tokens[1][0], None
+  if usr:
+    tokens[0] = private_vars.dice_vars[usr][var]
+  else:
+    tokens[0] = global_vars.dice_vars[var]
+
+def p_identifier(tokens):
+  '''identifier : MY IDENT
+                | IDENT'''
+  if len(tokens) == 3:
+    tokens[0] = [tokens[2], username]
+  else:
+    tokens[0] = [tokens[1]]
+
+def p_subscript_list(tokens):
+  '''subscript_list : subscript_list subscript
+                    | subscript'''
+  if len(tokens) == 3:
+    tokens[0] = tokens[1] + [tokens[2]]
+  else:
+    tokens[0] = [tokens[1]]
+
+def p_subscript(tokens):
+  '''subscript : LBRC expr RBRC'''
+  tokens[0] = tokens[2]
+
+
+def p_expr_bool_t(tokens):
   '''expr : TRUE
           | FALSE'''
-  t[0] = t[1].casefold() == 'true'
+  tokens[0] = tokens[1].casefold() == 'true'
 
-def p_vars(t):
-  '''expr : VARS'''
-  t[0] = '```%s```' % '  '.join(sorted(global_vars.dice_vars.keys()))
+def p_vars(tokens):
+  '''expr : MY VARS
+          | VARS'''
+  if len(tokens) == 3:
+    tokens[0] = '```%s```' % '  '.join(
+      sorted(private_vars.dice_vars[username].keys())
+    )
+  else:
+    tokens[0] = '```%s```' % '  '.join(
+      sorted(global_vars.dice_vars.keys())
+    )
 
-def p_expr_meta_rep(t):
+def p_expr_meta_rep(tokens):
   'expr : expr REP expr'
-  t[0] = [parser.parse(str(t[1])) for x in range(t[3])]
+  tokens[0] = [parser.parse(str(tokens[1])) for x in range(tokens[3])]
 
-def p_expr_meta_eval(t):
+def p_expr_meta_eval(tokens):
   '''expr : EVAL expr'''
-  t[0] = parser.parse(t[2])
+  tokens[0] = parser.parse(tokens[2])
 
 def p_conditional(t):
   '''expr : expr IF expr ELSE expr
@@ -201,120 +283,83 @@ def p_conditional(t):
     t[0] = t[1] if t[1] else t[4]
 
 # Concrete values
-def p_primary(t):
+def p_primary(tokens):
   '''expr : LPAR expr RPAR
           | NUMBER
           | STRING'''
-  if len(t) == 4:
-    t[0] = t[2]
+  if len(tokens) == 4:
+    tokens[0] = tokens[2]
   else:
-    t[0] = t[1]
-
-
-def p_ident(t):
-  '''expr : IDENT'''
-  t[0] = global_vars.dice_vars[t[1]]
-
+    tokens[0] = tokens[1]
 
 # Function-related rules
-def p_func_call(t):
-  '''expr : func_expr list_expr'''
-  args, algo = t[1].split('->')
-  args = [s.strip() for s in args.split(',')]
-  algo = algo.strip().strip('"').strip("'")
-  for index in range(len(t[2])):
-    algo = algo.replace(args[index], str(t[2][index]))
-  t[0] = parser.parse(algo)
-
-def p_named_func_call(t):
-  '''expr : IDENT list_expr'''
-  args, algo = global_vars.dice_vars[t[1]].split('->')
-  args = [s.strip() for s in args.split(',')]
-  algo = algo.strip().strip('"').strip("'")
-  for index in range(len(t[2])):
-    algo = algo.replace(args[index], str(t[2][index]))
-  t[0] = parser.parse(algo)
-
-def p_func_expr(t):
-  '''func_expr : param_list YIELD STRING'''
-  f = "%s -> '%s'" % (','.join(t[1]), t[3])
-  t[0] = f
-
-def p_func_assign(t):
-  '''expr : IDENT ASS func_expr'''
-  t[0] = t[3]
-  global_vars.dice_vars[t[1]] = t[3]
-
+def p_function_literal_expr(tokens):
+  '''expr : LBRK RBRK YIELD STRING
+          | LBRK MUL RBRK YIELD STRING'''
+  macro = tokens[4] if len(tokens) == 5 else tokens[5]
+  tokens[0] = {
+    'unpack?' : '*' in tokens,
+    'logic' : macro
+  }
+ 
+def p_function_call(tokens):
+  '''expr : identifier expr'''
+  global_func = len(tokens[1]) == 1
+  var_scope = global_vars.dice_vars if global_func else private_vars.dice_vars
+  if not global_func:
+    var_scope = var_scope[tokens[1][1]]
+  try:
+    unpack = var_scope[tokens[1][0]]['unpack?']
+    logic  = var_scope[tokens[1][0]]['logic']
+  except (KeyError, TypeError):
+    raise ParseError('object `%s` is not a function' % repr(tokens[1]))
+  if unpack:
+    tokens[0] = parser.parse(logic.format(*tokens[2]))
+  else:
+    tokens[0] = parser.parse(logic.format(tokens[2]))
+    
 # Variadic constructions
-def p_param_list(t):
-  '''param_list : LBRK elements RBRK
-                | LBRK RBRK'''
-  if len(t) == 4:
-    t[0] = t[2]
+def p_list_expr(tokens):
+  '''expr : list'''
+  tokens[0] = tokens[1]
+
+def p_list(tokens):
+  '''list : LBRK elements RBRK
+          | LBRK RBRK'''
+  if len(tokens) == 4:
+    tokens[0] = tokens[2]
   else:
-    t[0] = []
+    tokens[0] = []
 
-def p_list(t):
-  '''expr : list_expr'''
-  t[0] = t[1]
-
-def p_list_expr(t):
-  '''list_expr : LBRK elements RBRK
-               | LBRK RBRK'''
-  if len(t) == 4:
-    t[0] = t[2]
-  else:
-    t[0] = []
-
-
-def p_elements(t):
+def p_list_elements(tokens):
   '''elements : expr COM elements
               | expr'''
-  if len(t) == 4:
-    t[0] = [t[1]] + t[3]
+  if len(tokens) == 4:
+    tokens[0] = [tokens[1]] + tokens[3]
   else:
-    t[0] = [t[1]]
+    tokens[0] = [tokens[1]]
   
 
 # Memory manipulation
-def p_index_expr(t):
-  '''expr : expr LBRC expr RBRC
-          | IDENT LBRC expr RBRC'''
-  try:
-    t[0] = t[1][t[3]]
-  except Exception:
-    t[0] = global_vars.dice_vars[t[1]][t[3]]
+def p_expr_dictexpr(tokens):
+  '''expr : dict'''
+  tokens[0] = tokens[1]
 
-def p_dictexpr(t):
-  '''dictexpr : LBRC pairs RBRC
-              | LBRC RBRC'''
-  if len(t) == 4:
-    t[0] = dict(t[2])
+def p_dict(tokens):
+  '''dict : LBRC key_value_pairs RBRC
+          | LBRC RBRC'''
+  if len(tokens) == 4:
+    tokens[0] = dict(tokens[2])
   else:
-    t[0] = { }
+    tokens[0] = { }
 
-def p_pairs(t):
-  '''pairs : expr COLON expr COM pairs
-           | expr COLON expr'''
-  if len(t) == 6:
-    t[0] = [[t[1], t[3]]] + t[5]
+def p_key_value_pairs(tokens):
+  '''key_value_pairs : expr COLON expr COM key_value_pairs
+                     | expr COLON expr'''
+  if len(tokens) == 6:
+    tokens[0] = [[tokens[1], tokens[3]]] + tokens[5]
   else:
-    t[0] = [[t[1], t[3]]]
-
-def p_expr_dictexpr(t):
-  '''expr : dictexpr'''
-  t[0] = t[1]
-
-def p_assign_expr(t):
-  '''expr : IDENT LBRC expr RBRC ASS expr
-          | IDENT ASS expr'''
-  if len(t) == 4:
-    t[0] = t[3]
-    global_vars.dice_vars[t[1]] = t[3]
-  else:
-    t[0] = t[6]
-    global_vars.dice_vars[t[1]][t[3]] = t[6]
-
+    tokens[0] = [[tokens[1], tokens[3]]]
 
 def p_delete(t):
   '''expr : DEL IDENT LBRC expr RBRC
@@ -326,14 +371,16 @@ def p_delete(t):
     t[0] = (global_vars.dice_vars[t[2]])[t[4]]
     del (global_vars.dice_vars[t[2]])[t[4]]
 
-def p_error(t):
-  raise ParseError(str(t))
+def p_error(tokens):
+  raise ParseError(str(tokens))
 
 
 parser = yacc.yacc(optimize=1, debug=True)
 
 
-def roll(expr):
+def roll(expr,user):
+  global username
+  username = user
   try:
     global_vars.dice_vars['_'] = parser.parse(expr)
     return global_vars.dice_vars['_']

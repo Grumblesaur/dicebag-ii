@@ -7,6 +7,7 @@ import dice
 import info
 import turns
 import global_vars
+import private_vars
 
 from auth import *
 
@@ -45,16 +46,18 @@ async def on_message(msg):
   # save state every 5 minutes
   if current_time - last_save > 300:
     global_vars.save_state()
+    private_vars.save_state()
     last_save = time.time()
     print('globals saved')
   if current_time - last_backup > 1800:
     global_vars.backup_state()
+    private_vars.backup_state()
     last_backup = current_time
     print('globals backed up')
   
 if __name__ == '__main__':
   global_vars.load_state()
-  print(id(global_vars.dice_vars))
+  private_vars.load_state()
   client.run(bot_token)
   
 
