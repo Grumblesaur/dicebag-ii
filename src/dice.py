@@ -14,7 +14,7 @@ def init_insults():
     for line in fin:
       responses.append(line.strip())
 
-def scan(msg, usr):
+def scan(msg, display_name, actual_name):
   if '!roll' not in msg:
     return []
   
@@ -23,10 +23,10 @@ def scan(msg, usr):
   rolls  = [ ]
   for phrase in phrases:
     try:
-      rolls.append((phrase, [roll(phrase, usr)]))
+      rolls.append((phrase, [roll(phrase, actual_name)]))
     except ParseError as e:
       print('bad roll:', phrase, e)
-      rolls.append((phrase, [snark(usr,e)]))
+      rolls.append((phrase, [snark(usr, display_name)]))
   return rolls
 
 def snark(username, error):

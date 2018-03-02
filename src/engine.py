@@ -193,13 +193,14 @@ def p_assignment(tokens):
   except ValueError:
     var, usr = tokens[1][0], None
   if len(tokens) == 5:
-    tokens[0] = exec([
+    tokens[0] = tokens[4]
+    exec([
         'global_vars.dice_vars','private_vars.dice_vars[%s]' % repr(usr)
       ][bool(usr)]
       + '[%s]' % repr(var)
       + ''.join(['[%s]' % repr(sub) for sub in tokens[2]])
       + ' = '
-      + tokens[4]
+      + repr(tokens[4])
     )
   else:
     tokens[0] = tokens[3]
@@ -208,7 +209,56 @@ def p_assignment(tokens):
         private_vars.dice_vars[usr] = { }
       private_vars.dice_vars[usr][var] = tokens[3]
     else:
-      global_vars.dice_vars[var]  = tokens[3]
+      global_vars.dice_vars[var] = tokens[3]
+
+def p_deletion_expr(tokens):
+  '''expr : deletion'''
+  tokens[0] = tokens[1] if len(tokens[1]) > 1 else tokens[1][0]
+
+def p_subscript_deletion(tokens):
+  '''deletion : DEL identifier subscript_list'''
+  try:
+    var, usr = tokens[2]
+  except ValueError:
+    var, usr = tokens[2][0], None
+  if usr:
+    expr = ('private_vars.dice_vars[%s][%s]' % (
+      repr(var), repr(usr))
+    ) + ''.join(
+      ['[%s]' % repr(sub) for sub in tokens[3]]
+    )
+    tokens[0] = eval(expr)
+    exec(' '.join(('del', expr)))
+  else:
+    expr = ('global_vars.dice_vars[%s]' % repr(var)) + ''.join(
+      ['[%s]' % repr(sub) for sub in tokens[3]]
+    )
+    tokens[0] = eval(expr)
+    exec(' '.join(('del', expr)))
+
+def p_var_deletion(tokens):
+  '''deletion : DEL var_list'''
+  deleted = [ ]
+  for t in tokens[2]:
+    try:
+      var, usr = t
+    except ValueError:
+      var, usr = t[0], None
+    if usr:
+      deleted.append(private_vars.dice_vars[usr][var])
+      del private_vars.dice_vars[usr][var]
+    else:
+      deleted.append(global_vars.dice_vars[var])
+      del global_vars.dice_vars[var]
+    tokens[0] = deleted
+    
+def p_var_list(tokens):
+  '''var_list : var_list COM identifier
+              | identifier'''
+  if len(tokens) == 4:
+    tokens[0] = tokens[1] + [tokens[3]]
+  else:
+    tokens[0] = [tokens[1]]
 
 def p_index_expr(tokens):
   '''expr : expr subscript_list'''
@@ -360,16 +410,6 @@ def p_key_value_pairs(tokens):
     tokens[0] = [[tokens[1], tokens[3]]] + tokens[5]
   else:
     tokens[0] = [[tokens[1], tokens[3]]]
-
-def p_delete(t):
-  '''expr : DEL IDENT LBRC expr RBRC
-          | DEL IDENT'''
-  if len(t) == 3:
-    t[0] = global_vars.dice_vars[t[2]]
-    del global_vars.dice_vars[t[2]]
-  else:
-    t[0] = (global_vars.dice_vars[t[2]])[t[4]]
-    del (global_vars.dice_vars[t[2]])[t[4]]
 
 def p_error(tokens):
   raise ParseError(str(tokens))

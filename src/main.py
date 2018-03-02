@@ -22,11 +22,12 @@ async def on_message(msg):
   global last_save
   global last_backup
   current_time = time.time()
+  name = msg.author.name
   try:
-    name = msg.author.nick
+    nick = msg.author.nick
   except AttributeError:
-    name = msg.author.name
-  rolls = dice.scan(msg.content, name)
+    nick = msg.author.name
+  rolls = dice.scan(msg.content, nick, name)
   orders = turns.scan(msg.content)
   helptext = info.scan(msg.content)
   
