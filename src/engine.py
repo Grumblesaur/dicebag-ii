@@ -213,7 +213,7 @@ def p_assignment(tokens):
 
 def p_deletion_expr(tokens):
   '''expr : deletion'''
-  tokens[0] = tokens[1] if len(tokens[1]) > 1 else tokens[1][0]
+  tokens[0] = tokens[1]
 
 def p_subscript_deletion(tokens):
   '''deletion : DEL identifier subscript_list'''
@@ -223,8 +223,8 @@ def p_subscript_deletion(tokens):
     var, usr = tokens[2][0], None
   if usr:
     expr = ('private_vars.dice_vars[%s][%s]' % (
-      repr(var), repr(usr))
-    ) + ''.join(
+      repr(usr), repr(var)
+    )) + ''.join(
       ['[%s]' % repr(sub) for sub in tokens[3]]
     )
     tokens[0] = eval(expr)
