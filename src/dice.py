@@ -26,7 +26,7 @@ def scan(msg, display_name, actual_name):
       rolls.append((phrase, [roll(phrase, actual_name)]))
     except ParseError as e:
       print('bad roll:', phrase, e)
-      rolls.append((phrase, [snark(usr, display_name)]))
+      rolls.append((phrase, [snark(display_name, e)]))
   return rolls
 
 def snark(username, error):
