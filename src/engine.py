@@ -41,9 +41,9 @@ tokens = [ # token declarations
   'LPAR',   'RPAR',  'LBRK',
   'RBRK',   'COM',   'LBRC',
   'RBRC',   'YIELD', 'IF',
-  'ELSE',  'FALSE',  'TRUE',
-  'VARS',  'EVAL',   'SEP',
-  'COLON', 'MY'
+  'ELSE',   'FALSE', 'TRUE',
+  'VARS',   'EVAL',  'SEP',
+  'COLON',  'MY',    'LOOKUP'
 ]
 
 # module-defined token names
@@ -136,6 +136,7 @@ precedence = {
    30 : ('right',  'ASS'),
   260 : ('left', 'LBRC', 'RBRC'),
   280 : ('left', 'REP'),
+  300 : ('nonassoc', 'LOOKUP'),
 }
 # Add precedence rules from modules
 precedence = list(precedence.items())
@@ -268,7 +269,7 @@ def p_index_expr(tokens):
   tokens[0] = current
 
 def p_var_expr(tokens):
-  '''expr : identifier'''
+  '''expr : identifier %prec LOOKUP'''
   try:
     var, usr = tokens[1]
   except ValueError:
