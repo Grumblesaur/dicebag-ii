@@ -43,7 +43,8 @@ tokens = [ # token declarations
   'RBRC',   'YIELD', 'IF',
   'ELSE',   'FALSE', 'TRUE',
   'VARS',   'EVAL',  'SEP',
-  'COLON',  'MY',    'LOOKUP'
+  'COLON',  'MY',    'LOOKUP',
+  'CALL'
 ]
 
 # module-defined token names
@@ -93,12 +94,6 @@ def t_STRING(t):
   t.value = eval(t.value)
   return t
 
-# Read the stringified definitions of literal tokens
-# from the appropriate module to assign them to our
-# global namespace without overwriting previous modules.
-for module in modules:
-  exec(module.literals)
-
 # Builtin literal tokens
 t_SEP  = r';'
 t_REP  = r'\^'
@@ -113,6 +108,15 @@ t_YIELD= r'->'
 t_ASS  = r'='
 t_COM  = r','
 t_ignore = ' \t\n\r`'
+t_CALL = r'-:'
+
+# Read the stringified definitions of literal tokens
+# from the appropriate module to assign them to our
+# global namespace without overwriting previous modules.
+for module in modules:
+  exec(module.literals)
+
+
 
 
 def t_error(t):
@@ -346,28 +350,28 @@ def p_primary(tokens):
 # Function-related rules
 def p_function_literal_expr(tokens):
   '''expr : LBRK RBRK YIELD STRING
-          | LBRK MUL RBRK YIELD STRING'''
+          | LBRK MUL RBRK YIELD STRING
+          | LBRK COLON RBRK YIELD STRING'''
   macro = tokens[4] if len(tokens) == 5 else tokens[5]
+  
   tokens[0] = {
-    'unpack?' : '*' in tokens,
+    'stars' : tokens[2] if tokens[2] in ':*' else '',
     'logic' : macro
   }
  
 def p_function_call(tokens):
-  '''expr : identifier expr'''
-  global_func = len(tokens[1]) == 1
-  var_scope = global_vars.dice_vars if global_func else private_vars.dice_vars
-  if not global_func:
-    var_scope = var_scope[tokens[1][1]]
+  '''expr : expr CALL expr'''
   try:
-    unpack = var_scope[tokens[1][0]]['unpack?']
-    logic  = var_scope[tokens[1][0]]['logic']
+    stars = tokens[1]['stars']
+    logic  = tokens[1]['logic']
   except (KeyError, TypeError):
     raise ParseError('object `%s` is not a function' % repr(tokens[1]))
-  if unpack:
-    tokens[0] = parser.parse(logic.format(*tokens[2]))
+  if stars == '*':
+    tokens[0] = parser.parse(logic.format(*tokens[3]))
+  elif stars == ':':
+    tokens[0] = parser.parse(logic.format(**tokens[3]))
   else:
-    tokens[0] = parser.parse(logic.format(tokens[2]))
+    tokens[0] = parser.parse(logic.format(tokens[3]))
     
 # Variadic constructions
 def p_list_expr(tokens):
