@@ -43,8 +43,8 @@ tokens = [ # token declarations
   'RBRC',   'YIELD', 'IF',
   'ELSE',   'FALSE', 'TRUE',
   'VARS',   'EVAL',  'SEP',
-  'COLON',  'MY',    'LOOKUP',
-  'CALL'
+  'COLON',  'MY',    'CALL', 
+  'INDEX',  'VAR'
 ]
 
 # module-defined token names
@@ -138,9 +138,10 @@ precedence = {
     0 : ('right',  'EVAL'),
    20 : ('right',  'IF'),
    30 : ('right',  'ASS'),
+   35 : ('nonassoc', 'VAR'),
+   40 : ('left',   'INDEX'),
   260 : ('left', 'LBRC', 'RBRC'),
   280 : ('left', 'REP'),
-  300 : ('nonassoc', 'LOOKUP'),
 }
 # Add precedence rules from modules
 precedence = list(precedence.items())
@@ -266,14 +267,14 @@ def p_var_list(tokens):
     tokens[0] = [tokens[1]]
 
 def p_index_expr(tokens):
-  '''expr : expr subscript_list'''
+  '''expr : expr subscript_list %prec INDEX'''
   current = tokens[1]
   for sub in tokens[2]:
     current = current[sub]
   tokens[0] = current
 
 def p_var_expr(tokens):
-  '''expr : identifier %prec LOOKUP'''
+  '''expr : identifier %prec VAR'''
   try:
     var, usr = tokens[1]
   except ValueError:
@@ -291,17 +292,17 @@ def p_identifier(tokens):
   else:
     tokens[0] = [tokens[1]]
 
-def p_subscript_list(tokens):
-  '''subscript_list : subscript_list subscript
-                    | subscript'''
-  if len(tokens) == 3:
-    tokens[0] = tokens[1] + [tokens[2]]
-  else:
-    tokens[0] = [tokens[1]]
-
 def p_subscript(tokens):
   '''subscript : LBRC expr RBRC'''
   tokens[0] = tokens[2]
+
+def p_subscript_list(tokens):
+  '''subscript_list : subscript subscript_list
+                    | subscript'''
+  if len(tokens) == 3:
+    tokens[0] = [tokens[1]] + tokens[2]
+  else:
+    tokens[0] = [tokens[1]]
 
 
 def p_expr_bool_t(tokens):
