@@ -44,7 +44,6 @@ tokens = [ # token declarations
   'ELSE',   'FALSE', 'TRUE',
   'VARS',   'EVAL',  'SEP',
   'COLON',  'MY',    'CALL', 
-  'INDEX',  'VAR'
 ]
 
 # module-defined token names
@@ -70,7 +69,7 @@ for module in modules:
 
 # Variable names
 def t_IDENT(t):
-  r'[a-zA-Z_]+'
+  r'''[a-zA-Z_]+'''
   # Intercept reserved words before they get treated like identifiers
   if t.value in reserved:
     t.type = reserved[t.value]
@@ -78,7 +77,7 @@ def t_IDENT(t):
 
 # Numeric literals
 def t_NUMBER(t):
-  r'(\d*\.)?\d+'
+  r'''(\d*\.)?\d+'''
   n = None
   try:
     f = float(t.value)
@@ -138,8 +137,6 @@ precedence = {
     0 : ('right',  'EVAL'),
    20 : ('right',  'IF'),
    30 : ('right',  'ASS'),
-   35 : ('nonassoc', 'VAR'),
-   40 : ('left',   'INDEX'),
   260 : ('left', 'LBRC', 'RBRC'),
   280 : ('left', 'REP'),
 }
@@ -299,7 +296,7 @@ def p_index_literal_expr(tokens):
   tokens[0] = current
 
 def p_var_expr(tokens):
-  '''expr : identifier %prec VAR'''
+  '''expr : identifier'''
   #print('VAR EXPR')
   try:
     var, usr = tokens[1]
@@ -396,7 +393,8 @@ def p_function_literal_expr(tokens):
   }
  
 def p_function_call(tokens):
-  '''expr : expr CALL expr'''
+  '''expr : expr CALL dict
+          | expr CALL list'''
   #print('FUNCTION CALL EXPR')
   try:
     stars = tokens[1]['stars']
