@@ -89,7 +89,7 @@ def t_NUMBER(t):
 
 # String objects
 def t_STRING(t):
-  r"""(\"(\\.|[^"\\]|\n)*\"|\'(\\.|[^'\\]|\n)*\')"""
+  r"""(\"(\\.|[^"\\]|[\r\n])*\"|\'(\\.|[^'\\]|[\r\n])*\')"""
   t.value = eval(t.value)
   return t
 
