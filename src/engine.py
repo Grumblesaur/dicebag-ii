@@ -89,8 +89,8 @@ def t_NUMBER(t):
 
 # String objects
 def t_STRING(t):
-  r"""(\"(\\.|[^"\\]|[\r\n])*\"|\'(\\.|[^'\\]|[\r\n])*\')"""
-  t.value = eval(t.value)
+  r"""(\"(\\.|[^"\\]|(\\r?\\n)+)*\"|\'(\\.|[^'\\]|(\\r?\\n)+)*\')"""
+  t.value = eval("'''%s'''" % t.value.strip('"\''))
   return t
 
 # Builtin literal tokens
