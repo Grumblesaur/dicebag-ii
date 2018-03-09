@@ -25,21 +25,21 @@ def p_mod(tokens):
 def p_abs(tokens):
   '''expr : ADD expr %prec ABS'''
   try:
-    result = +t[2]
+    result = +tokens[2]
   except TypeError:
-    result = t[2]
-  t[0] = result
+    result = tokens[2]
+  tokens[0] = result
 
 def p_neg(tokens):
   '''expr : SUB expr %prec NEG'''
   try:
-    result = -t[2]
+    result = -tokens[2]
   except TypeError:
     try:
-      result = [x for x in reversed(t[2])]
+      result = [x for x in reversed(tokens[2])]
     except Exception:
-      result = t[2]
-  t[0] = result
+      result = tokens[2]
+  tokens[0] = result
 
 def p_num(tokens):
   '''expr : NUM expr'''
