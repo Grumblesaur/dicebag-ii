@@ -175,13 +175,13 @@ start = 'stmt_list'
 
 def p_stmt(t):
   '''stmt : expr'''
-  print('STMT')
+  #print('STMT')
   t[0] = t[1]
 
 def p_stmt_list(t):
   '''stmt_list : stmt_list SEP stmt
                | stmt'''
-  print('STMT LIST')
+  #print('STMT LIST')
   if len(t) == 2:
     t[0] = t[1]
   else:
@@ -191,13 +191,13 @@ def p_stmt_list(t):
 # Built-in expressions
 def p_assignment_expr(tokens):
   '''expr : assignment'''
-  print('ASSIGNMENT EXPR')
+  #print('ASSIGNMENT EXPR')
   tokens[0] = tokens[1]
 
 def p_assignment(tokens):
   '''assignment : identifier subscript_list ASS expr
                 | identifier ASS expr'''
-  print('ASSIGNMENT')
+  #print('ASSIGNMENT')
   try:
     var, usr = tokens[1]
   except ValueError:
@@ -223,12 +223,12 @@ def p_assignment(tokens):
 
 def p_deletion_expr(tokens):
   '''expr : deletion'''
-  print('DELETION EXPR')
+  #print('DELETION EXPR')
   tokens[0] = tokens[1]
 
 def p_subscript_deletion(tokens):
   '''deletion : DEL identifier subscript_list'''
-  print('SUBSCRIPT DELETION')
+  #print('SUBSCRIPT DELETION')
   try:
     var, usr = tokens[2]
   except ValueError:
@@ -250,7 +250,7 @@ def p_subscript_deletion(tokens):
 
 def p_var_deletion(tokens):
   '''deletion : DEL var_list'''
-  print('VAR DELETION')
+  #print('VAR DELETION')
   deleted = [ ]
   for t in tokens[2]:
     try:
@@ -268,7 +268,7 @@ def p_var_deletion(tokens):
 def p_var_list(tokens):
   '''var_list : var_list COM identifier
               | identifier'''
-  print('VAR LIST')
+  #print('VAR LIST')
   if len(tokens) == 4:
     tokens[0] = tokens[1] + [tokens[3]]
   else:
@@ -276,7 +276,7 @@ def p_var_list(tokens):
 
 def p_index_var_expr(tokens):
   '''expr : identifier subscript_list'''
-  print('INDEX VAR EXPR')
+  #print('INDEX VAR EXPR')
   try:
     var, usr = tokens[1]
   except ValueError:
@@ -292,7 +292,7 @@ def p_index_literal_expr(tokens):
   '''expr : list subscript_list
           | STRING subscript_list
           | dict subscript_list'''
-  print('INDEX LIT EXPR')
+  #print('INDEX LIT EXPR')
   current = tokens[1]
   for sub in tokens[2]:
     current = current[sub]
@@ -300,7 +300,7 @@ def p_index_literal_expr(tokens):
 
 def p_var_expr(tokens):
   '''expr : identifier %prec VAR'''
-  print('VAR EXPR')
+  #print('VAR EXPR')
   try:
     var, usr = tokens[1]
   except ValueError:
@@ -313,7 +313,7 @@ def p_var_expr(tokens):
 def p_identifier(tokens):
   '''identifier : MY IDENT
                 | IDENT'''
-  print('IDENTIFIER')
+  #print('IDENTIFIER')
   if len(tokens) == 3:
     tokens[0] = [tokens[2], username]
   else:
@@ -321,13 +321,13 @@ def p_identifier(tokens):
 
 def p_subscript(tokens):
   '''subscript : LBRC expr RBRC'''
-  print('SUBSCRIPT')
+  #print('SUBSCRIPT')
   tokens[0] = tokens[2]
 
 def p_subscript_list(tokens):
   '''subscript_list : subscript subscript_list
                     | subscript'''
-  print('SUBSCRIPT LIST')
+  #print('SUBSCRIPT LIST')
   if len(tokens) == 3:
     tokens[0] = [tokens[1]] + tokens[2]
   else:
@@ -337,13 +337,13 @@ def p_subscript_list(tokens):
 def p_expr_bool_t(tokens):
   '''expr : TRUE
           | FALSE'''
-  print('BOOL LITERAL')
+  #print('BOOL LITERAL')
   tokens[0] = tokens[1].casefold() == 'true'
 
 def p_vars(tokens):
   '''expr : MY VARS
           | VARS'''
-  print('VARS')
+  #print('VARS')
   if len(tokens) == 3:
     tokens[0] = '```%s```' % '  '.join(
       sorted(private_vars.dice_vars[username].keys())
@@ -355,18 +355,18 @@ def p_vars(tokens):
 
 def p_expr_meta_rep(tokens):
   '''expr : expr REP expr'''
-  print('META REP EXPR')
+  #print('META REP EXPR')
   tokens[0] = [parser.parse(str(tokens[1])) for x in range(tokens[3])]
 
 def p_expr_meta_eval(tokens):
   '''expr : EVAL expr'''
-  print('META EVAL EXPR')
+  #print('META EVAL EXPR')
   tokens[0] = parser.parse(tokens[2])
 
 def p_conditional(t):
   '''expr : expr IF expr ELSE expr
           | expr IF ELSE expr'''
-  print('CONDITIONAL')
+  #print('CONDITIONAL')
   if len(t) == 6:
     t[0] = t[1] if t[3] else t[5]
   else:
@@ -377,7 +377,7 @@ def p_primary(tokens):
   '''expr : LPAR expr RPAR
           | NUMBER
           | STRING'''
-  print('PRIMARY')
+  #print('PRIMARY')
   if len(tokens) == 4:
     tokens[0] = tokens[2]
   else:
@@ -388,7 +388,7 @@ def p_function_literal_expr(tokens):
   '''expr : LBRK RBRK YIELD STRING
           | LBRK MUL RBRK YIELD STRING
           | LBRK COLON RBRK YIELD STRING'''
-  print('FUNCTION LITERAL EXPR')
+  #print('FUNCTION LITERAL EXPR')
   macro = tokens[4] if len(tokens) == 5 else tokens[5]
   tokens[0] = {
     'stars' : tokens[2] if tokens[2] in ':*' else '',
@@ -397,7 +397,7 @@ def p_function_literal_expr(tokens):
  
 def p_function_call(tokens):
   '''expr : expr CALL expr'''
-  print('FUNCTION CALL EXPR')
+  #print('FUNCTION CALL EXPR')
   try:
     stars = tokens[1]['stars']
     logic  = tokens[1]['logic']
@@ -413,13 +413,13 @@ def p_function_call(tokens):
 # Variadic constructions
 def p_list_expr(tokens):
   '''expr : list'''
-  print('LIST EXPR')
+  #print('LIST EXPR')
   tokens[0] = tokens[1]
 
 def p_list(tokens):
   '''list : LBRK elements RBRK
           | LBRK RBRK'''
-  print('LIST')
+  #print('LIST')
   if len(tokens) == 4:
     tokens[0] = tokens[2]
   else:
@@ -428,7 +428,7 @@ def p_list(tokens):
 def p_list_elements(tokens):
   '''elements : expr COM elements
               | expr'''
-  print('LIST ELEMENTS')
+  #print('LIST ELEMENTS')
   if len(tokens) == 4:
     tokens[0] = [tokens[1]] + tokens[3]
   else:
@@ -438,13 +438,13 @@ def p_list_elements(tokens):
 # Memory manipulation
 def p_expr_dictexpr(tokens):
   '''expr : dict'''
-  print('DICT EXPR')
+  #print('DICT EXPR')
   tokens[0] = tokens[1]
 
 def p_dict(tokens):
   '''dict : LBRC key_value_pairs RBRC
           | LBRC RBRC'''
-  print('DICT')
+  #print('DICT')
   if len(tokens) == 4:
     tokens[0] = dict(tokens[2])
   else:
@@ -453,7 +453,7 @@ def p_dict(tokens):
 def p_key_value_pairs(tokens):
   '''key_value_pairs : expr COLON expr COM key_value_pairs
                      | expr COLON expr'''
-  print('PAIRS')
+  #print('PAIRS')
   if len(tokens) == 6:
     tokens[0] = [[tokens[1], tokens[3]]] + tokens[5]
   else:
