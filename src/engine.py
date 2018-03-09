@@ -90,6 +90,7 @@ def t_NUMBER(t):
 # String objects
 def t_STRING(t):
   r"""(\"(\\.|[^"\\]|(\\r?\\n)+)*\"|\'(\\.|[^'\\]|(\\r?\\n)+)*\')"""
+  # allow for strings with newlines inside
   t.value = eval("'''%s'''" % t.value.strip('"\''))
   return t
 
