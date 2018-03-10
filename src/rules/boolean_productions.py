@@ -12,6 +12,6 @@ def p_not(tokens):
 
 def p_in(tokens):
   '''expr : expr IN expr'''
-  tokens[0] = tokens[1] in token[3]
+  tokens[0] = tokens[1] in tokens[3]
 
 

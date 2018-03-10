@@ -366,8 +366,10 @@ def p_conditional(t):
           | expr IF ELSE expr'''
   #print('CONDITIONAL')
   if len(t) == 6:
+    print(t[3])
     t[0] = t[1] if t[3] else t[5]
   else:
+    print(t[1])
     t[0] = t[1] if t[1] else t[4]
 
 # Concrete values
