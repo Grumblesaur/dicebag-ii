@@ -23,11 +23,17 @@ def p_die(tokens):
 
 def p_low(tokens):
   '''expr : expr LOW expr'''
-  tokens[0] = sorted(tokens[1])[:tokens[3]]
+  temp = sorted(tokens[1])[:tokens[3]]
+  if len(temp) == 1:
+    temp = temp[0]
+  tokens[0] = temp
 
 def p_high(tokens):
   '''expr : expr HIGH expr'''
-  tokens[0] = [x for x in reversed(sorted(tokens[1]))][:tokens[3]]
+  temp = [x for x in reversed(sorted(tokens[1]))][:tokens[3]]
+  if len(temp) == 1:
+    temp = temp[0]
+  tokens[0] = temp
 
 def p_sel(tokens):
   '''expr : SEL expr'''
