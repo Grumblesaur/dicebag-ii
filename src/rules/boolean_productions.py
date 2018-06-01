@@ -1,4 +1,4 @@
-from operr import OperationError
+from util.operr import OperationError
 
 def p_and(tokens):
   '''expr : expr AND expr'''

@@ -1,4 +1,4 @@
-from operr import OperationError
+from util.operr import OperationError
 
 def p_bit_and(tokens):
   '''expr : expr BIT_AND expr'''
