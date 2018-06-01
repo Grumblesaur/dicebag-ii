@@ -1,4 +1,4 @@
-from util.operr import OperationError
+from .operr import OperationError
 
 def p_add(tokens):
   '''expr : expr ADD expr'''
