@@ -20,7 +20,7 @@ def p_fact(tokens):
   except Exception as e:
     raise OperationError(
       'factorial `%s` requires integral left operand. (%s)' % (
-        tokens[2], %e
+        tokens[2], e
       )
     )
   
