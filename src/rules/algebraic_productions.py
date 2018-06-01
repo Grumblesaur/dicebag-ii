@@ -1,6 +1,6 @@
 from math import factorial
 from math import log
-from operr import OperationError
+from util.operr import OperationError
 
 def p_root(tokens):
   '''expr : expr ROOT expr'''
