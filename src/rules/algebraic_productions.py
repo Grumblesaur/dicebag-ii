@@ -54,8 +54,7 @@ def p_exp(tokens):
     tokens[0] = tokens[1] ** tokens[3]
   except Exception as e:
     raise OperationError(
-      'power `%s` requires requires numeric left and right operands. (%s)' % (
-        tokens[2], e
-      )
+      ('power `\*\*` requires requires numeric left and right '
+       + 'operands. (%s)') % e
     )
   
