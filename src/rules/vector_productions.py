@@ -31,6 +31,7 @@ def p_samm(tokens):
   except Exception as e:
     raise OperationError(
       'argument is not vector or contains objects of disparate type. (%s)'
+    )
 
 def p_avg(tokens):
   '''expr : AVG expr'''
