@@ -1,7 +1,7 @@
 from random import randint
 from random import shuffle
 from random import choice
-from .util.operr import OperationError
+from .operr import OperationError
 
 def p_range(tokens):
   '''expr : expr TO expr'''

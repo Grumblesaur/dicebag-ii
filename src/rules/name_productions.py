@@ -3,7 +3,7 @@ sys.path.append('..')
 
 import gen
 import names
-from .util.operr import OperationError
+from .operr import OperationError
 
 def p_name(tokens):
   '''expr : NAME expr'''
