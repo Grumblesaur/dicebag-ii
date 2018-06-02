@@ -9,7 +9,7 @@ def p_sum(tokens):
     tokens[0] = tokens[2]
     return
   else:
-    del p
+    del x
   
   try:
     try:
