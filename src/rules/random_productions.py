@@ -12,7 +12,7 @@ def p_range(tokens):
       tokens[0] = [x for x in range(tokens[3], tokens[1], -1)]
   except Exception as e:
     raise OperationError(
-      '`%s` requires integral left and right operands.' % (
+      '`%s` requires integral left and right operands. (%s)' % (
         tokens[2], e
       )
     )
