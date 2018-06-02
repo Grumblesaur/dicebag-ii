@@ -51,7 +51,8 @@ def p_low(tokens):
     tokens[0] = temp
   except Exception as e:
     raise OperationError(
-      'copy and paste this error to the developer for analysis (%s)' % e
+      ('`l` requires an iterable left operand and an '
+       + 'integral right operand. (%s)') % e
     )
 
 
@@ -64,7 +65,8 @@ def p_high(tokens):
     tokens[0] = temp
   except Exception as e:
     raise OperationError(
-      'copy and paste this error to the developer for analysis (%s)' % e
+      ('`h` requires an iterable left operand and an '
+       + 'integral right operand. (%s)') % e
     )
 
 def p_sel(tokens):
