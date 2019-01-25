@@ -59,6 +59,7 @@ async def on_message(msg):
 if __name__ == '__main__':
   global_vars.load_state()
   private_vars.load_state()
+  print('dicebag initialized')
   client.run(bot_token)
   
 
