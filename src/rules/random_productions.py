@@ -2,6 +2,7 @@ from random import randint
 from random import shuffle
 from random import choice
 from .operr import OperationError
+import random_util
 
 def p_range(tokens):
   '''expr : expr TO expr'''
@@ -30,17 +31,45 @@ def p_range_step(tokens):
       'range boundaries and step size must be integers. (%s)' % e
     )
 
+dice_error = "Dice cannot have fractional sides or partial count. (%s)"
+
 def p_die(tokens):
   '''expr : expr DIE expr'''
   try:
-    tokens[0] = [randint(1, tokens[3]) for x in range(tokens[1])]
-    tokens[0] = tokens[0][0] if len(tokens[0]) == 1 else tokens[0]
+    tokens[0] = random_util.roll_kernel(tokens[1], tokens[3], return_sum=True)
   except Exception as e:
-    raise OperationError(
-      'dice cannot have fractional sides or have partial count. (%s)' % (
-        e
-      )
-    )
+    raise OperationError(dice_error % e)
+
+def p_die_tern_low(tokens):
+  '''expr : expr DIE expr LOW expr'''
+  try:
+    tokens[0] = random_util.roll_kernel(
+      tokens[1],
+      tokens[3],
+      tokens[5],
+      random_util.KeepMode.LOWEST,
+      return_sum=True)
+  except Exception as e:
+    raise OperationError(dice_error % e)
+
+def p_die_tern_high(tokens);
+  '''expr : expr DIE expr HIGH expr'''
+  try:
+    tokens[0] = random_util.roll_kernel(
+      tokens[1],
+      tokens[3],
+      tokens[5],
+      random_util.KeepMode.HIGHEST,
+      return_sum=True)
+  except Exception as e:
+    raise OperationError(dice_error % e)
+
+def p_roll(tokens):
+  '''expr : expr ROLL expr'''
+  try:
+    tokens[0] = random_util.roll_kernel(tokens[1], tokens[3])
+  except Exception as e:
+    raise OperationError(dice_error % e)
 
 def p_low(tokens):
   '''expr : expr LOW expr'''
