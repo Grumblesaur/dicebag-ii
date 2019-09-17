@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.getcwd().replace('test','src'))
 
-from dice import calc_reps, scan, notify
+from dice import scan, notify
 
 class Message(object):
   def __init__(self, text, name):
@@ -55,7 +55,7 @@ pass_cases = [
 ]
 
 def test(msg):
-  return notify(scan(msg.text), msg)
+  return notify(scan(msg.text, 'nick', 'name'), msg)
 
 if __name__ == '__main__':
   for case in pass_cases:

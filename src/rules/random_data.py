@@ -17,9 +17,8 @@ reserved = {
 precedence = {
   60  : ('nonassoc', 'BY'),
   50  : ('nonassoc', 'TO'),
-  270 : ('left', 'DIE'),
-  271 : ('left', 'ROLL'),
-  250 : ('left', 'LOW', 'HIGH'),
+  270 : ('left', 'DIE', 'ROLL'),
+  271 : ('left', 'LOW', 'HIGH'),
   240 : ('right', 'SEL', 'SHUFFLE', 'SORT'),
 }
 

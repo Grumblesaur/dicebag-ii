@@ -2,7 +2,8 @@ from random import randint
 from random import shuffle
 from random import choice
 from .operr import OperationError
-import random_util
+from .random_util import KeepMode
+from .random_util import roll_kernel
 
 def p_range(tokens):
   '''expr : expr TO expr'''
@@ -36,30 +37,30 @@ dice_error = "Dice cannot have fractional sides or partial count. (%s)"
 def p_die(tokens):
   '''expr : expr DIE expr'''
   try:
-    tokens[0] = random_util.roll_kernel(tokens[1], tokens[3], return_sum=True)
+    tokens[0] = roll_kernel(tokens[1], tokens[3], return_sum=True)
   except Exception as e:
     raise OperationError(dice_error % e)
 
 def p_die_tern_low(tokens):
   '''expr : expr DIE expr LOW expr'''
   try:
-    tokens[0] = random_util.roll_kernel(
+    tokens[0] = roll_kernel(
       tokens[1],
       tokens[3],
       tokens[5],
-      random_util.KeepMode.LOWEST,
+      mode=KeepMode.LOWEST,
       return_sum=True)
   except Exception as e:
     raise OperationError(dice_error % e)
 
-def p_die_tern_high(tokens);
+def p_die_tern_high(tokens):
   '''expr : expr DIE expr HIGH expr'''
   try:
-    tokens[0] = random_util.roll_kernel(
+    tokens[0] = roll_kernel(
       tokens[1],
       tokens[3],
       tokens[5],
-      random_util.KeepMode.HIGHEST,
+      mode=KeepMode.HIGHEST,
       return_sum=True)
   except Exception as e:
     raise OperationError(dice_error % e)
@@ -67,36 +68,33 @@ def p_die_tern_high(tokens);
 def p_roll(tokens):
   '''expr : expr ROLL expr'''
   try:
-    tokens[0] = random_util.roll_kernel(tokens[1], tokens[3])
+    tokens[0] = roll_kernel(tokens[1], tokens[3])
   except Exception as e:
     raise OperationError(dice_error % e)
 
-def p_low(tokens):
-  '''expr : expr LOW expr'''
+def p_roll_tern_low(tokens):
+  '''expr : expr ROLL expr LOW expr'''
   try:
-    temp = sorted(tokens[1])[:tokens[3]]
-    if len(temp) == 1:
-      temp = temp[0]
-    tokens[0] = temp
+    tokens[0] = roll_kernel(
+      tokens[1],
+      tokens[3],
+      tokens[5],
+      mode=KeepMode.LOWEST,
+      return_sum=False)
   except Exception as e:
-    raise OperationError(
-      ('`l` requires an iterable left operand and an '
-       + 'integral right operand. (%s)') % e
-    )
+    raise OperationError(dice_error % e)
 
-
-def p_high(tokens):
-  '''expr : expr HIGH expr'''
+def p_die_tern_high(tokens):
+  '''expr : expr ROLL expr HIGH expr'''
   try:
-    temp = [x for x in reversed(sorted(tokens[1]))][:tokens[3]]
-    if len(temp) == 1:
-      temp = temp[0]
-    tokens[0] = temp
+    tokens[0] = roll_kernel(
+      tokens[1],
+      tokens[3],
+      tokens[5],
+      mode=KeepMode.HIGHEST,
+      return_sum=False)
   except Exception as e:
-    raise OperationError(
-      ('`h` requires an iterable left operand and an '
-       + 'integral right operand. (%s)') % e
-    )
+    raise OperationError(dice_error % e)
 
 def p_sel(tokens):
   '''expr : SEL expr'''

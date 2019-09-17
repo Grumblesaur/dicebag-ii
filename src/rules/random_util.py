@@ -7,7 +7,7 @@ class KeepMode(enum.Enum):
   HIGHEST = 1
 
 def roll_kernel(dice, sides, count=0, mode=KeepMode.ALL, return_sum=False):
-  results = [random.randint(1,sides) for die in dice]
+  results = [random.randint(1,sides) for die in range(dice)]
   if mode == KeepMode.LOWEST:
     out = sorted(results)[:count]
   elif mode == KeepMode.HIGHEST:
