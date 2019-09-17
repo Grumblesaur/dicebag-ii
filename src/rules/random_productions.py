@@ -84,7 +84,7 @@ def p_roll_tern_low(tokens):
   except Exception as e:
     raise OperationError(dice_error % e)
 
-def p_die_tern_high(tokens):
+def p_roll_tern_high(tokens):
   '''expr : expr ROLL expr HIGH expr'''
   try:
     tokens[0] = roll_kernel(
