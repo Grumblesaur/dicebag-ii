@@ -366,9 +366,15 @@ def p_conditional(t):
           | expr IF ELSE expr'''
   #print('CONDITIONAL')
   if len(t) == 6:
-    t[0] = t[1] if t[3] else t[5]
+    if (t[3]):
+      t[0] = t[1]
+    else:
+      t[0] = t[5]
   else:
-    t[0] = t[1] if t[1] else t[4]
+    if t[1]:
+      t[0] = t[1]
+    else:
+      t[0] = t[4]
 
 # Concrete values
 def p_primary(tokens):
