@@ -43,7 +43,7 @@ tokens = [ # token declarations
   'RBRC',   'YIELD', 'IF',
   'ELSE',   'FALSE', 'TRUE',
   'VARS',   'EVAL',  'SEP',
-  'COLON',  'MY',    'CALL', 
+  'COLON',  'MY',    'CALL',
 ]
 
 # module-defined token names
@@ -60,7 +60,7 @@ reserved = {
   'eval' : 'EVAL',
   'vars' : 'VARS',
   'my'   : 'MY',
-  'rep'  : 'REP'
+  'rep'  : 'REP',
 }
 
 # Append module-defined reserved words
@@ -138,7 +138,7 @@ precedence = {
     0 : ('right',  'EVAL'),
    20 : ('right',  'IF'),
    30 : ('right',  'ASS'),
-  260 : ('left', 'LBRC', 'RBRC'),
+  260 : ('left', 'LBRC', 'RBRC',),
   280 : ('left', 'REP'),
 }
 # Add precedence rules from modules
@@ -438,7 +438,6 @@ def p_list_elements(tokens):
     tokens[0] = [tokens[1]] + tokens[3]
   else:
     tokens[0] = [tokens[1]]
-  
 
 # Memory manipulation
 def p_expr_dictexpr(tokens):

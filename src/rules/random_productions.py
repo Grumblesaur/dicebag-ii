@@ -116,7 +116,19 @@ def p_shuffle(tokens):
       'cannot shuffle non-vector object. (%s)' % e
     )
 
-
+def p_slice(tokens):
+  '''expr : expr FROM expr'''
+  try:
+    out = [ ]
+    for index in tokens[3]:
+      out.append(tokens[1][index])
+    tokens[0] = out
+  except TypeError as e:
+    raise OperationError(
+      'cannot slice using non-vector object. (%s)' % e
+    )
+  
+  
 def p_sort(tokens):
   '''expr : SORT expr'''
   try:
@@ -126,4 +138,12 @@ def p_sort(tokens):
       'cannot sort non-vector object. (%s)' % e
     )
 
+def p_rsort(tokens):
+  '''expr : RSORT expr'''
+  try: 
+    tokens[0] = sorted(tokens[2], reverse=True)
+  except Exception as e:
+    raise OperationError(
+      'cannot sort non-vector object. (%s)' % e
+    )
 

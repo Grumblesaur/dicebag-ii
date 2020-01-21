@@ -52,6 +52,10 @@ pass_cases = [
   Message('!roll @(10r(2**1d4))', 'bananas'),
   Message(x,'list'),
   Message('!roll 1d1000000000', 'huge'),
+
+  Message('!roll rsort (0 to 11)', 'new'),
+  Message('!roll [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] from (0 to 6 by 2)', 'new'),
+  
 ]
 
 def test(msg):
