@@ -32,13 +32,13 @@ async def on_message(msg):
   helptext = info.scan(msg.content)
   
   if rolls:
-    await client.send_message(msg.channel, dice.notify(rolls, msg))
+    await msg.channel.send(dice.notify(rolls, msg))
 
   if orders:
-    await client.send_message(msg.channel, turns.notify(orders))
+    await msg.channel.send(turns.notify(orders))
   
   if helptext:
-    await client.send_message(msg.channel, helptext)
+    await msg.channel.send(helptext)
   
   if msg.content.startswith('!save'):
     global_vars.save_state()
