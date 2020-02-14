@@ -16,6 +16,10 @@ current_time = 0
 last_save    = 0
 last_backup  = 0
 
+invite_url = '''https://discordapp.com/oauth2/authorize?&client_id=674076495425044511&scope=bot&permissions=0'''
+
+source_url = '''https://github.com/Grumblesaur/atropos'''
+
 @client.event
 async def on_message(msg):
   global current_time
@@ -31,31 +35,12 @@ async def on_message(msg):
   orders = turns.scan(msg.content)
   helptext = info.scan(msg.content)
   
-  if rolls:
-    await msg.channel.send(dice.notify(rolls, msg))
+  if rolls or orders or helptext:
+    reply = 'Dicebag has been deprecated. Please use Atropos instead.'
+    reply += '\n  Invite link: {}'.format(invite_url)
+    reply += '\n  Source code: {}'.format(source_url)
+    await msg.channel.send(reply)
 
-  if orders:
-    await msg.channel.send(turns.notify(orders))
-  
-  if helptext:
-    await msg.channel.send(helptext)
-  
-  if msg.content.startswith('!save'):
-    global_vars.save_state()
-    global_vars.backup_state()
-  
-  # save state every 5 minutes
-  if current_time - last_save > 300:
-    global_vars.save_state()
-    private_vars.save_state()
-    last_save = time.time()
-    print('globals saved')
-  if current_time - last_backup > 1800:
-    global_vars.backup_state()
-    private_vars.backup_state()
-    last_backup = current_time
-    print('globals backed up')
-  
 if __name__ == '__main__':
   global_vars.load_state()
   private_vars.load_state()
